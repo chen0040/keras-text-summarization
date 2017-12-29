@@ -77,15 +77,16 @@ class Seq2Seq(object):
         return temp
 
     def transform_target_encoding(self, texts):
-        temp = ['START']
+        temp = []
         for line in texts:
             x = []
-            for word in line.lower().split(' '):
+            line2 = 'START ' + line + ' END'
+            for word in line2.lower().split(' '):
                 x.append(word)
                 if len(x) >= self.max_input_seq_length:
                     break
             temp.append(x)
-        temp.append('END')
+
         temp = np.array(temp)
         print(temp.shape)
         return temp
