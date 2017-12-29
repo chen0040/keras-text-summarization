@@ -5,3 +5,4 @@ pandas
 numpy
 scipy
 h5py
+matplotlib
