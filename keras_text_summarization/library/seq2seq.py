@@ -301,15 +301,15 @@ class Seq2SeqGloVe(object):
 
     @staticmethod
     def get_weight_file_path(model_dir_path):
-        return model_dir_path + '/' + Seq2Seq.model_name + '-weights.h5'
+        return model_dir_path + '/' + Seq2SeqGloVe.model_name + '-weights.h5'
 
     @staticmethod
     def get_config_file_path(model_dir_path):
-        return model_dir_path + '/' + Seq2Seq.model_name + '-config.npy'
+        return model_dir_path + '/' + Seq2SeqGloVe.model_name + '-config.npy'
 
     @staticmethod
     def get_architecture_file_path(model_dir_path):
-        return model_dir_path + '/' + Seq2Seq.model_name + '-architecture.json'
+        return model_dir_path + '/' + Seq2SeqGloVe.model_name + '-architecture.json'
 
     def fit(self, Xtrain, Ytrain, Xtest, Ytest, epochs=None, model_dir_path=None):
         if epochs is None:
@@ -317,11 +317,11 @@ class Seq2SeqGloVe(object):
         if model_dir_path is None:
             model_dir_path = './models'
 
-        config_file_path = Seq2Seq.get_config_file_path(model_dir_path)
-        weight_file_path = Seq2Seq.get_weight_file_path(model_dir_path)
+        config_file_path = Seq2SeqGloVe.get_config_file_path(model_dir_path)
+        weight_file_path = Seq2SeqGloVe.get_weight_file_path(model_dir_path)
         checkpoint = ModelCheckpoint(weight_file_path)
         np.save(config_file_path, self.config)
-        architecture_file_path = Seq2Seq.get_architecture_file_path(model_dir_path)
+        architecture_file_path = Seq2SeqGloVe.get_architecture_file_path(model_dir_path)
         open(architecture_file_path, 'w').write(self.model.to_json())
 
         Ytrain = self.transform_target_encoding(Ytrain)
