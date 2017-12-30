@@ -347,10 +347,10 @@ class Seq2SeqGloVe(object):
         input_seq = []
         input_wids = []
         for word in input_text.lower().split(' '):
-            idx = 1  # default [UNK]
-            if word in self.input_word2idx:
-                idx = self.input_word2idx[word]
-            input_wids.append(idx)
+            emb = self.unknown_emb  # default [UNK]
+            if word in self.word2em:
+                emb = self.word2em[word]
+            input_wids.append(emb)
         input_seq.append(input_wids)
         input_seq = pad_sequences(input_seq, self.max_input_seq_length)
         states_value = self.encoder_model.predict(input_seq)
@@ -377,4 +377,6 @@ class Seq2SeqGloVe(object):
 
             states_value = [h, c]
         return target_text.strip()
+
+
 
