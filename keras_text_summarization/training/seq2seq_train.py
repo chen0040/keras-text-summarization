@@ -12,6 +12,7 @@ def main():
     np.random.seed(42)
     data_dir_path = './data'
     report_dir_path = './reports'
+    model_dir_path = './models'
 
     print('loading csv file ...')
 
@@ -33,6 +34,7 @@ def main():
     print('configuration extracted from input texts ...')
 
     classifier = Seq2Seq(config)
+    classifier.load_weights(weight_file_path=Seq2Seq.get_weight_file_path(model_dir_path=model_dir_path))
 
     Xtrain, Xtest, Ytrain, Ytest = train_test_split(X, Y, test_size=0.2, random_state=42)
 

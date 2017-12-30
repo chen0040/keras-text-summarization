@@ -6,6 +6,7 @@ from keras.layers.recurrent import LSTM
 from keras.preprocessing.sequence import pad_sequences
 from keras.callbacks import ModelCheckpoint
 import numpy as np
+import os
 
 HIDDEN_UNITS = 100
 BATCH_SIZE = 64
@@ -57,7 +58,8 @@ class Seq2Seq(object):
         self.decoder_model = Model([decoder_inputs] + decoder_state_inputs, [decoder_outputs] + decoder_states)
 
     def load_weights(self, weight_file_path):
-        self.model.load_weights(weight_file_path)
+        if os.path.exists(weight_file_path):
+            self.model.load_weights(weight_file_path)
 
     def transform_input_text(self, texts):
         temp = []
@@ -110,14 +112,22 @@ class Seq2Seq(object):
                             decoder_target_data_batch[lineIdx, idx - 1, w2idx] = 1
                 yield [encoder_input_data_batch, decoder_input_data_batch], decoder_target_data_batch
 
+    @staticmethod
+    def get_weight_file_path(model_dir_path):
+        return model_dir_path + '/' + Seq2Seq.model_name + '-weights.h5'
+
+    @staticmethod
+    def get_config_file_path(model_dir_path):
+        return model_dir_path + '/' + Seq2Seq.model_name + '-config.npy'
+
     def fit(self, Xtrain, Ytrain, Xtest, Ytest, epochs=None, model_dir_path=None):
         if epochs is None:
             epochs = EPOCHS
         if model_dir_path is None:
             model_dir_path = './models'
 
-        config_file_path = model_dir_path + '/' + self.model_name + '-config.npy'
-        weight_file_path = model_dir_path + '/' + self.model_name + '-weights.h5'
+        config_file_path = Seq2Seq.get_config_file_path(model_dir_path)
+        weight_file_path = Seq2Seq.get_weight_file_path(model_dir_path)
         checkpoint = ModelCheckpoint(weight_file_path)
         np.save(config_file_path, self.config)
         architecture_file_path = model_dir_path + '/' + self.model_name + '-architecture.json'
