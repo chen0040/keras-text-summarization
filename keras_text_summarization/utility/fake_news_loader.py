@@ -46,8 +46,11 @@ def fit_text(X, Y, input_seq_max_length=None, target_seq_max_length=None):
 
     target_word2idx = dict()
     for idx, word in enumerate(target_counter.most_common(MAX_TARGET_VOCAB_SIZE)):
-        target_word2idx[word[0]] = idx + 1
-    target_word2idx['UNK'] = 0
+        target_word2idx[word[0]] = idx
+    if 'UNK' not in target_word2idx:
+        target_word2idx['UNK'] = 0
+        for word in target_word2idx.keys():
+            target_word2idx[word] = target_word2idx[word] + 1
     target_idx2word = dict([(idx, word) for word, idx in target_word2idx.items()])
     
     num_input_tokens = len(input_word2idx)
