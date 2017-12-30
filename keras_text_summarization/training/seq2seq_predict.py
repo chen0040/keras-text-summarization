@@ -15,18 +15,9 @@ def main():
 
     # Import `fake_or_real_news.csv`
     df = pd.read_csv(data_dir_path + "/fake_or_real_news.csv")
-
-    # Set `y`
-    Y = df.title
-
-    # Drop the `label` column
-    df.drop("title", axis=1)
-
-    print('extract configuration from input texts ...')
-
     X = df['text']
 
-    config = fit_text(X, Y)
+    config = Seq2Seq.get_config_file_path(model_dir_path=model_dir_path)
 
     print('configuration extracted from input texts ...')
 
@@ -37,7 +28,6 @@ def main():
     for x in X[0:20]:
         headline = classifier.summarize(x)
         print(headline)
-
 
 
 if __name__ == '__main__':
