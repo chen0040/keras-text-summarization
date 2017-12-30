@@ -82,8 +82,8 @@ class Seq2Seq(object):
         temp = []
         for line in texts:
             x = []
-            line2 = 'START ' + line + ' END'
-            for word in line2.lower().split(' '):
+            line2 = 'START ' + line.lower() + ' END'
+            for word in line2.split(' '):
                 x.append(word)
                 if len(x) >= self.max_target_seq_length:
                     break
