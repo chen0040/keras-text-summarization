@@ -2,7 +2,6 @@ from __future__ import print_function
 
 import pandas as pd
 from keras_text_summarization.library.seq2seq import Seq2Seq
-from keras_text_summarization.utility.fake_news_loader import fit_text
 import numpy as np
 
 
@@ -17,7 +16,7 @@ def main():
     df = pd.read_csv(data_dir_path + "/fake_or_real_news.csv")
     X = df['text']
 
-    config = Seq2Seq.get_config_file_path(model_dir_path=model_dir_path)
+    config = np.load(Seq2Seq.get_config_file_path(model_dir_path=model_dir_path)).item()
 
     print('configuration extracted from input texts ...')
 

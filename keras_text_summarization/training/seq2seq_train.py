@@ -44,7 +44,8 @@ def main():
     print('start fitting ...')
     history = classifier.fit(Xtrain, Ytrain, Xtest, Ytest)
 
-
+    history_plot_file_path = report_dir_path + '/' + Seq2Seq.model_name + '-history.png'
+    plot_and_save_history(history, classifier.model_name, history_plot_file_path, metrics={'loss'})
 
 
 if __name__ == '__main__':
