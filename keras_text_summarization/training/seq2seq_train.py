@@ -7,6 +7,8 @@ from keras_text_summarization.library.seq2seq import Seq2Seq
 from keras_text_summarization.utility.fake_news_loader import fit_text
 import numpy as np
 
+LOAD_EXISTING_WEIGHTS = True
+
 
 def main():
     np.random.seed(42)
@@ -34,7 +36,9 @@ def main():
     print('configuration extracted from input texts ...')
 
     classifier = Seq2Seq(config)
-    # classifier.load_weights(weight_file_path=Seq2Seq.get_weight_file_path(model_dir_path=model_dir_path))
+
+    if LOAD_EXISTING_WEIGHTS:
+        classifier.load_weights(weight_file_path=Seq2Seq.get_weight_file_path(model_dir_path=model_dir_path))
 
     Xtrain, Xtest, Ytrain, Ytest = train_test_split(X, Y, test_size=0.2, random_state=42)
 
@@ -42,10 +46,10 @@ def main():
     print('testing size: ', len(Xtest))
 
     print('start fitting ...')
-    history = classifier.fit(Xtrain, Ytrain, Xtest, Ytest)
+    history = classifier.fit(Xtrain, Ytrain, Xtest, Ytest, epochs=100)
 
     history_plot_file_path = report_dir_path + '/' + Seq2Seq.model_name + '-history.png'
-    plot_and_save_history(history, classifier.model_name, history_plot_file_path, metrics={'loss'})
+    plot_and_save_history(history, classifier.model_name, history_plot_file_path, metrics={'loss', 'acc'})
 
 
 if __name__ == '__main__':

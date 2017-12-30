@@ -45,7 +45,7 @@ class Seq2Seq(object):
 
         model = Model([encoder_inputs, decoder_inputs], decoder_outputs)
 
-        model.compile(loss='categorical_crossentropy', optimizer='rmsprop')
+        model.compile(loss='categorical_crossentropy', optimizer='rmsprop', metrics=['accuracy'])
 
         self.model = model
 
@@ -107,9 +107,10 @@ class Seq2Seq(object):
                         w2idx = 0  # default [UNK]
                         if w in self.target_word2idx:
                             w2idx = self.target_word2idx[w]
-                        decoder_input_data_batch[lineIdx, idx, w2idx] = 1
-                        if idx > 0:
-                            decoder_target_data_batch[lineIdx, idx - 1, w2idx] = 1
+                        if w2idx != 0:
+                            decoder_input_data_batch[lineIdx, idx, w2idx] = 1
+                            if idx > 0:
+                                decoder_target_data_batch[lineIdx, idx - 1, w2idx] = 1
                 yield [encoder_input_data_batch, decoder_input_data_batch], decoder_target_data_batch
 
     @staticmethod
@@ -119,6 +120,10 @@ class Seq2Seq(object):
     @staticmethod
     def get_config_file_path(model_dir_path):
         return model_dir_path + '/' + Seq2Seq.model_name + '-config.npy'
+
+    @staticmethod
+    def get_architecture_file_path(model_dir_path):
+        return model_dir_path + '/' + Seq2Seq.model_name + '-architecture.json'
 
     def fit(self, Xtrain, Ytrain, Xtest, Ytest, epochs=None, model_dir_path=None):
         if epochs is None:
@@ -130,7 +135,7 @@ class Seq2Seq(object):
         weight_file_path = Seq2Seq.get_weight_file_path(model_dir_path)
         checkpoint = ModelCheckpoint(weight_file_path)
         np.save(config_file_path, self.config)
-        architecture_file_path = model_dir_path + '/' + self.model_name + '-architecture.json'
+        architecture_file_path = Seq2Seq.get_architecture_file_path(model_dir_path)
         open(architecture_file_path, 'w').write(self.model.to_json())
 
         Ytrain = self.transform_target_encoding(Ytrain)
