@@ -83,7 +83,7 @@ class Seq2Seq(object):
             line2 = 'START ' + line + ' END'
             for word in line2.lower().split(' '):
                 x.append(word)
-                if len(x) >= self.max_input_seq_length:
+                if len(x) >= self.max_target_seq_length:
                     break
             temp.append(x)
 
