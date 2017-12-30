@@ -214,8 +214,8 @@ class Seq2SeqGloVe(object):
 
         self.config = config
 
-        encoder_inputs = Input(shape=(None,), name='encoder_inputs')
-        encoder_lstm = LSTM(units=HIDDEN_UNITS, return_state=True, name='encoder_lstm', input_shape=(self.max_input_seq_length, GLOVE_EMBEDDING_SIZE))
+        encoder_inputs = Input(shape=(None, GLOVE_EMBEDDING_SIZE), name='encoder_inputs')
+        encoder_lstm = LSTM(units=HIDDEN_UNITS, return_state=True, name='encoder_lstm')
         encoder_outputs, encoder_state_h, encoder_state_c = encoder_lstm(encoder_inputs)
         encoder_states = [encoder_state_h, encoder_state_c]
 
@@ -250,14 +250,14 @@ class Seq2SeqGloVe(object):
     def transform_input_text(self, texts):
         temp = []
         for line in texts:
-            x = []
-            for word in line.lower().split(' '):
+            x = np.zeros(shape=(self.max_input_seq_length, GLOVE_EMBEDDING_SIZE))
+            for idx, word in enumerate(line.lower().split(' ')):
+                if idx >= self.max_input_seq_length:
+                    break
                 emb = self.unknown_emb
                 if word in self.word2em:
                     emb = self.word2em[word]
-                x.append(emb)
-                if len(x) >= self.max_input_seq_length:
-                    break
+                x[idx, :] = emb
             temp.append(x)
         temp = pad_sequences(temp, maxlen=self.max_input_seq_length)
 

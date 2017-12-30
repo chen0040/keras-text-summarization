@@ -7,6 +7,7 @@ __pycache__/
 *.so
 
 .idea/
+keras_text_summarization/training/very_large_data
 
 # Distribution / packaging
 .Python
