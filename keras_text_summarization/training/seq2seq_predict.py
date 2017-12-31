@@ -13,6 +13,7 @@ def main():
     print('loading csv file ...')
     df = pd.read_csv(data_dir_path + "/fake_or_real_news.csv")
     X = df['text']
+    Y = df.title
 
     config = np.load(Seq2Seq.get_config_file_path(model_dir_path=model_dir_path)).item()
 
@@ -20,9 +21,12 @@ def main():
     summarizer.load_weights(weight_file_path=Seq2Seq.get_weight_file_path(model_dir_path=model_dir_path))
 
     print('start predicting ...')
-    for x in X[0:20]:
+    for i in range(20):
+        x = X[i]
+        actual_headline = Y[i]
         headline = summarizer.summarize(x)
-        print(headline)
+        print('Generated: ', headline)
+        print('Original: ', actual_headline)
 
 
 if __name__ == '__main__':
