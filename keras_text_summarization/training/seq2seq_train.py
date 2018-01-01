@@ -40,7 +40,7 @@ def main():
 
     history_plot_file_path = report_dir_path + '/' + Seq2Seq.model_name + '-history.png'
     if LOAD_EXISTING_WEIGHTS:
-        history_plot_file_path = report_dir_path + '/' + Seq2Seq.model_name + '-continued-history.png'
+        history_plot_file_path = report_dir_path + '/' + Seq2Seq.model_name + '-history-v' + str(summarizer.version) + '.png'
     plot_and_save_history(history, summarizer.model_name, history_plot_file_path, metrics={'loss', 'acc'})
 
 

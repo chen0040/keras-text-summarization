@@ -1,7 +1,7 @@
 from __future__ import print_function
 
 from keras.models import Model
-from keras.layers import Embedding, Dense, Input
+from keras.layers import Embedding, Dense, Input, RepeatVector, TimeDistributed
 from keras.layers.recurrent import LSTM
 from keras.preprocessing.sequence import pad_sequences
 from keras.callbacks import ModelCheckpoint
@@ -14,9 +14,17 @@ VERBOSE = 1
 EPOCHS = 10
 
 
-class Seq2Seq(object):
+class OneShotRNN(object):
 
-    model_name = 'seq2seq'
+    model_name = 'one-shot-rnn'
+    """
+    The first alternative model is to generate the entire output sequence in a one-shot manner.
+    That is, the decoder uses the context vector alone to generate the output sequence.
+    
+    This model puts a heavy burden on the decoder.
+    It is likely that the decoder will not have sufficient context for generating a coherent output sequence as it 
+    must choose the words and their order.
+    """
 
     def __init__(self, config):
         self.num_input_tokens = config['num_input_tokens']
@@ -29,33 +37,19 @@ class Seq2Seq(object):
         self.target_idx2word = config['target_idx2word']
         self.config = config
 
-        encoder_inputs = Input(shape=(None,), name='encoder_inputs')
-        encoder_embedding = Embedding(input_dim=self.num_input_tokens, output_dim=HIDDEN_UNITS,
-                                      input_length=self.max_input_seq_length, name='encoder_embedding')
-        encoder_lstm = LSTM(units=HIDDEN_UNITS, return_state=True, name='encoder_lstm')
-        encoder_outputs, encoder_state_h, encoder_state_c = encoder_lstm(encoder_embedding(encoder_inputs))
-        encoder_states = [encoder_state_h, encoder_state_c]
-
-        decoder_inputs = Input(shape=(None, self.num_target_tokens), name='decoder_inputs')
-        decoder_lstm = LSTM(units=HIDDEN_UNITS, return_state=True, return_sequences=True, name='decoder_lstm')
-        decoder_outputs, decoder_state_h, decoder_state_c = decoder_lstm(decoder_inputs,
-                                                                         initial_state=encoder_states)
-        decoder_dense = Dense(units=self.num_target_tokens, activation='softmax', name='decoder_dense')
-        decoder_outputs = decoder_dense(decoder_outputs)
-
-        model = Model([encoder_inputs, decoder_inputs], decoder_outputs)
-
-        model.compile(loss='categorical_crossentropy', optimizer='rmsprop', metrics=['accuracy'])
+        # encoder input model
+        inputs = Input(shape=(self.max_input_seq_length,))
+        encoder1 = Embedding(self.num_input_tokens, 128)(inputs)
+        encoder2 = LSTM(128)(encoder1)
+        encoder3 = RepeatVector(self.max_target_seq_length)(encoder2)
+        # decoder output model
+        decoder1 = LSTM(128, return_sequences=True)(encoder3)
+        outputs = TimeDistributed(Dense(self.num_target_tokens, activation='softmax'))(decoder1)
+        # tie it together
+        model = Model(inputs=inputs, outputs=outputs)
+        model.compile(loss='categorical_crossentropy', optimizer='adam')
 
         self.model = model
-
-        self.encoder_model = Model(encoder_inputs, encoder_states)
-
-        decoder_state_inputs = [Input(shape=(HIDDEN_UNITS,)), Input(shape=(HIDDEN_UNITS,))]
-        decoder_outputs, state_h, state_c = decoder_lstm(decoder_inputs, initial_state=decoder_state_inputs)
-        decoder_states = [state_h, state_c]
-        decoder_outputs = decoder_dense(decoder_outputs)
-        self.decoder_model = Model([decoder_inputs] + decoder_state_inputs, [decoder_outputs] + decoder_states)
 
     def load_weights(self, weight_file_path):
         if os.path.exists(weight_file_path):
@@ -115,15 +109,15 @@ class Seq2Seq(object):
 
     @staticmethod
     def get_weight_file_path(model_dir_path):
-        return model_dir_path + '/' + Seq2Seq.model_name + '-weights.h5'
+        return model_dir_path + '/' + OneShotRNN.model_name + '-weights.h5'
 
     @staticmethod
     def get_config_file_path(model_dir_path):
-        return model_dir_path + '/' + Seq2Seq.model_name + '-config.npy'
+        return model_dir_path + '/' + OneShotRNN.model_name + '-config.npy'
 
     @staticmethod
     def get_architecture_file_path(model_dir_path):
-        return model_dir_path + '/' + Seq2Seq.model_name + '-architecture.json'
+        return model_dir_path + '/' + OneShotRNN.model_name + '-architecture.json'
 
     def fit(self, Xtrain, Ytrain, Xtest, Ytest, epochs=None, model_dir_path=None):
         if epochs is None:
@@ -131,11 +125,11 @@ class Seq2Seq(object):
         if model_dir_path is None:
             model_dir_path = './models'
 
-        config_file_path = Seq2Seq.get_config_file_path(model_dir_path)
-        weight_file_path = Seq2Seq.get_weight_file_path(model_dir_path)
+        config_file_path = OneShotRNN.get_config_file_path(model_dir_path)
+        weight_file_path = OneShotRNN.get_weight_file_path(model_dir_path)
         checkpoint = ModelCheckpoint(weight_file_path)
         np.save(config_file_path, self.config)
-        architecture_file_path = Seq2Seq.get_architecture_file_path(model_dir_path)
+        architecture_file_path = OneShotRNN.get_architecture_file_path(model_dir_path)
         open(architecture_file_path, 'w').write(self.model.to_json())
 
         Ytrain = self.transform_target_encoding(Ytrain)

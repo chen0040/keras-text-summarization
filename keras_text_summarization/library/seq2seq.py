@@ -30,6 +30,10 @@ class Seq2Seq(object):
         self.target_idx2word = config['target_idx2word']
         self.config = config
 
+        self.version = 0
+        if 'version' in config:
+            self.version = config['version']
+
         encoder_inputs = Input(shape=(None,), name='encoder_inputs')
         encoder_embedding = Embedding(input_dim=self.num_input_tokens, output_dim=HIDDEN_UNITS,
                                       input_length=self.max_input_seq_length, name='encoder_embedding')
@@ -132,6 +136,8 @@ class Seq2Seq(object):
         if model_dir_path is None:
             model_dir_path = './models'
 
+        self.version += 1
+        self.config['version'] = self.version
         config_file_path = Seq2Seq.get_config_file_path(model_dir_path)
         weight_file_path = Seq2Seq.get_weight_file_path(model_dir_path)
         checkpoint = ModelCheckpoint(weight_file_path)
@@ -204,6 +210,9 @@ class Seq2SeqGloVe(object):
         self.max_target_seq_length = config['max_target_seq_length']
         self.target_word2idx = config['target_word2idx']
         self.target_idx2word = config['target_idx2word']
+        self.version = 0
+        if 'version' in config:
+            self.version = config['version']
 
         self.word2em = dict()
         if 'unknown_emb' in config:
@@ -317,6 +326,8 @@ class Seq2SeqGloVe(object):
         if model_dir_path is None:
             model_dir_path = './models'
 
+        self.version += 1
+        self.config['version'] = self.version
         config_file_path = Seq2SeqGloVe.get_config_file_path(model_dir_path)
         weight_file_path = Seq2SeqGloVe.get_weight_file_path(model_dir_path)
         checkpoint = ModelCheckpoint(weight_file_path)
