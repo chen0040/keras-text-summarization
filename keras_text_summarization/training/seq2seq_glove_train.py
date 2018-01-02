@@ -7,7 +7,7 @@ from keras_text_summarization.library.seq2seq import Seq2SeqGloVe
 from keras_text_summarization.utility.fake_news_loader import fit_text
 import numpy as np
 
-LOAD_EXISTING_WEIGHTS = False
+LOAD_EXISTING_WEIGHTS = True
 
 
 def main():
