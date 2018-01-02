@@ -3,7 +3,7 @@ from __future__ import print_function
 import pandas as pd
 from sklearn.model_selection import train_test_split
 from keras_text_summarization.utility.plot_utils import plot_and_save_history
-from keras_text_summarization.library.seq2seq import Seq2SeqGloVe
+from keras_text_summarization.library.seq2seq import Seq2SeqGloVeSummarizer
 from keras_text_summarization.utility.fake_news_loader import fit_text
 import numpy as np
 
@@ -27,11 +27,11 @@ def main():
 
     print('configuration extracted from input texts ...')
 
-    summarizer = Seq2SeqGloVe(config)
+    summarizer = Seq2SeqGloVeSummarizer(config)
     summarizer.load_glove(very_large_data_dir_path)
 
     if LOAD_EXISTING_WEIGHTS:
-        summarizer.load_weights(weight_file_path=Seq2SeqGloVe.get_weight_file_path(model_dir_path=model_dir_path))
+        summarizer.load_weights(weight_file_path=Seq2SeqGloVeSummarizer.get_weight_file_path(model_dir_path=model_dir_path))
 
     Xtrain, Xtest, Ytrain, Ytest = train_test_split(X, Y, test_size=0.2, random_state=42)
 
@@ -41,9 +41,9 @@ def main():
     print('start fitting ...')
     history = summarizer.fit(Xtrain, Ytrain, Xtest, Ytest, epochs=100)
 
-    history_plot_file_path = report_dir_path + '/' + Seq2SeqGloVe.model_name + '-history.png'
+    history_plot_file_path = report_dir_path + '/' + Seq2SeqGloVeSummarizer.model_name + '-history.png'
     if LOAD_EXISTING_WEIGHTS:
-        history_plot_file_path = report_dir_path + '/' + Seq2SeqGloVe.model_name + '-history-v ' + str(summarizer.version) + '.png'
+        history_plot_file_path = report_dir_path + '/' + Seq2SeqGloVeSummarizer.model_name + '-history-v ' + str(summarizer.version) + '.png'
     plot_and_save_history(history, summarizer.model_name, history_plot_file_path, metrics={'loss', 'acc'})
 
 

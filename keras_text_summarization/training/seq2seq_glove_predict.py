@@ -1,7 +1,7 @@
 from __future__ import print_function
 
 import pandas as pd
-from keras_text_summarization.library.seq2seq import Seq2SeqGloVe
+from keras_text_summarization.library.seq2seq import Seq2SeqGloVeSummarizer
 import numpy as np
 
 
@@ -14,17 +14,23 @@ def main():
     print('loading csv file ...')
     df = pd.read_csv(data_dir_path + "/fake_or_real_news.csv")
     X = df['text']
+    Y = df.title
 
-    config = np.load(Seq2SeqGloVe.get_config_file_path(model_dir_path=model_dir_path)).item()
+    config = np.load(Seq2SeqGloVeSummarizer.get_config_file_path(model_dir_path=model_dir_path)).item()
 
-    summarizer = Seq2SeqGloVe(config)
+    summarizer = Seq2SeqGloVeSummarizer(config)
     summarizer.load_glove(very_large_data_dir_path)
-    summarizer.load_weights(weight_file_path=Seq2SeqGloVe.get_weight_file_path(model_dir_path=model_dir_path))
+    summarizer.load_weights(weight_file_path=Seq2SeqGloVeSummarizer.get_weight_file_path(model_dir_path=model_dir_path))
 
     print('start predicting ...')
-    for x in X[0:20]:
+    for i in np.random.permutation(np.arange(len(X)))[0:20]:
+        x = X[i]
+        actual_headline = Y[i]
         headline = summarizer.summarize(x)
-        print(headline)
+
+        print('Generated Headline: ', headline)
+        print('Original Headline: ', actual_headline)
+        print('Article: ', x[0:100])
 
 
 if __name__ == '__main__':

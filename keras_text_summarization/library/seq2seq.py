@@ -15,7 +15,7 @@ VERBOSE = 1
 EPOCHS = 10
 
 
-class Seq2Seq(object):
+class Seq2SeqSummarizer(object):
 
     model_name = 'seq2seq'
 
@@ -120,15 +120,15 @@ class Seq2Seq(object):
 
     @staticmethod
     def get_weight_file_path(model_dir_path):
-        return model_dir_path + '/' + Seq2Seq.model_name + '-weights.h5'
+        return model_dir_path + '/' + Seq2SeqSummarizer.model_name + '-weights.h5'
 
     @staticmethod
     def get_config_file_path(model_dir_path):
-        return model_dir_path + '/' + Seq2Seq.model_name + '-config.npy'
+        return model_dir_path + '/' + Seq2SeqSummarizer.model_name + '-config.npy'
 
     @staticmethod
     def get_architecture_file_path(model_dir_path):
-        return model_dir_path + '/' + Seq2Seq.model_name + '-architecture.json'
+        return model_dir_path + '/' + Seq2SeqSummarizer.model_name + '-architecture.json'
 
     def fit(self, Xtrain, Ytrain, Xtest, Ytest, epochs=None, model_dir_path=None):
         if epochs is None:
@@ -138,11 +138,11 @@ class Seq2Seq(object):
 
         self.version += 1
         self.config['version'] = self.version
-        config_file_path = Seq2Seq.get_config_file_path(model_dir_path)
-        weight_file_path = Seq2Seq.get_weight_file_path(model_dir_path)
+        config_file_path = Seq2SeqSummarizer.get_config_file_path(model_dir_path)
+        weight_file_path = Seq2SeqSummarizer.get_weight_file_path(model_dir_path)
         checkpoint = ModelCheckpoint(weight_file_path)
         np.save(config_file_path, self.config)
-        architecture_file_path = Seq2Seq.get_architecture_file_path(model_dir_path)
+        architecture_file_path = Seq2SeqSummarizer.get_architecture_file_path(model_dir_path)
         open(architecture_file_path, 'w').write(self.model.to_json())
 
         Ytrain = self.transform_target_encoding(Ytrain)
@@ -200,7 +200,7 @@ class Seq2Seq(object):
         return target_text.strip()
 
 
-class Seq2SeqGloVe(object):
+class Seq2SeqGloVeSummarizer(object):
 
     model_name = 'seq2seq-glove'
 
@@ -310,15 +310,15 @@ class Seq2SeqGloVe(object):
 
     @staticmethod
     def get_weight_file_path(model_dir_path):
-        return model_dir_path + '/' + Seq2SeqGloVe.model_name + '-weights.h5'
+        return model_dir_path + '/' + Seq2SeqGloVeSummarizer.model_name + '-weights.h5'
 
     @staticmethod
     def get_config_file_path(model_dir_path):
-        return model_dir_path + '/' + Seq2SeqGloVe.model_name + '-config.npy'
+        return model_dir_path + '/' + Seq2SeqGloVeSummarizer.model_name + '-config.npy'
 
     @staticmethod
     def get_architecture_file_path(model_dir_path):
-        return model_dir_path + '/' + Seq2SeqGloVe.model_name + '-architecture.json'
+        return model_dir_path + '/' + Seq2SeqGloVeSummarizer.model_name + '-architecture.json'
 
     def fit(self, Xtrain, Ytrain, Xtest, Ytest, epochs=None, model_dir_path=None):
         if epochs is None:
@@ -328,11 +328,11 @@ class Seq2SeqGloVe(object):
 
         self.version += 1
         self.config['version'] = self.version
-        config_file_path = Seq2SeqGloVe.get_config_file_path(model_dir_path)
-        weight_file_path = Seq2SeqGloVe.get_weight_file_path(model_dir_path)
+        config_file_path = Seq2SeqGloVeSummarizer.get_config_file_path(model_dir_path)
+        weight_file_path = Seq2SeqGloVeSummarizer.get_weight_file_path(model_dir_path)
         checkpoint = ModelCheckpoint(weight_file_path)
         np.save(config_file_path, self.config)
-        architecture_file_path = Seq2SeqGloVe.get_architecture_file_path(model_dir_path)
+        architecture_file_path = Seq2SeqGloVeSummarizer.get_architecture_file_path(model_dir_path)
         open(architecture_file_path, 'w').write(self.model.to_json())
 
         Ytrain = self.transform_target_encoding(Ytrain)
@@ -355,15 +355,14 @@ class Seq2SeqGloVe(object):
         return history
 
     def summarize(self, input_text):
-        input_seq = []
-        input_wids = []
-        for word in input_text.lower().split(' '):
+        input_seq = np.zeros(shape=(1, self.max_input_seq_length, GLOVE_EMBEDDING_SIZE))
+        for idx, word in enumerate(input_text.lower().split(' ')):
+            if idx >= self.max_input_seq_length:
+                break
             emb = self.unknown_emb  # default [UNK]
             if word in self.word2em:
                 emb = self.word2em[word]
-            input_wids.append(emb)
-        input_seq.append(input_wids)
-        input_seq = pad_sequences(input_seq, self.max_input_seq_length)
+            input_seq[0, idx, :] = emb
         states_value = self.encoder_model.predict(input_seq)
         target_seq = np.zeros((1, 1, self.num_target_tokens))
         target_seq[0, 0, self.target_word2idx['START']] = 1

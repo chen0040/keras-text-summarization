@@ -1,7 +1,7 @@
 from __future__ import print_function
 
 import pandas as pd
-from keras_text_summarization.library.seq2seq import Seq2Seq
+from keras_text_summarization.library.seq2seq import Seq2SeqSummarizer
 import numpy as np
 
 
@@ -15,18 +15,19 @@ def main():
     X = df['text']
     Y = df.title
 
-    config = np.load(Seq2Seq.get_config_file_path(model_dir_path=model_dir_path)).item()
+    config = np.load(Seq2SeqSummarizer.get_config_file_path(model_dir_path=model_dir_path)).item()
 
-    summarizer = Seq2Seq(config)
-    summarizer.load_weights(weight_file_path=Seq2Seq.get_weight_file_path(model_dir_path=model_dir_path))
+    summarizer = Seq2SeqSummarizer(config)
+    summarizer.load_weights(weight_file_path=Seq2SeqSummarizer.get_weight_file_path(model_dir_path=model_dir_path))
 
     print('start predicting ...')
     for i in range(20):
         x = X[i]
         actual_headline = Y[i]
         headline = summarizer.summarize(x)
-        print('Generated: ', headline)
-        print('Original: ', actual_headline)
+        print('Article: ', x)
+        print('Generated Headline: ', headline)
+        print('Original Headline: ', actual_headline)
 
 
 if __name__ == '__main__':
