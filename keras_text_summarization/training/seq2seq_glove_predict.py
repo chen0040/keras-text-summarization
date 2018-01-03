@@ -30,7 +30,7 @@ def main():
 
         print('Generated Headline: ', headline)
         print('Original Headline: ', actual_headline)
-        print('Article: ', x[0:100])
+        # print('Article: ', x[0:100])
 
 
 if __name__ == '__main__':

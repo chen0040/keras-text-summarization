@@ -21,11 +21,11 @@ def main():
     summarizer.load_weights(weight_file_path=Seq2SeqSummarizer.get_weight_file_path(model_dir_path=model_dir_path))
 
     print('start predicting ...')
-    for i in range(20):
+    for i in np.random.permutation(np.arange(len(X)))[0:20]:
         x = X[i]
         actual_headline = Y[i]
         headline = summarizer.summarize(x)
-        print('Article: ', x)
+        # print('Article: ', x)
         print('Generated Headline: ', headline)
         print('Original Headline: ', actual_headline)
 
