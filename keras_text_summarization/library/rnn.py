@@ -191,6 +191,10 @@ class RecursiveRNN1(object):
         self.input_idx2word = config['input_idx2word']
         self.target_word2idx = config['target_word2idx']
         self.target_idx2word = config['target_idx2word']
+        if 'version' in config:
+            self.version = config['version']
+        else:
+            self.version = 0
         self.config = config
 
         # encoder input model
@@ -289,6 +293,9 @@ class RecursiveRNN1(object):
         if model_dir_path is None:
             model_dir_path = './models'
 
+        self.version += 1
+        self.config['version'] = self.version
+
         config_file_path = RecursiveRNN1.get_config_file_path(model_dir_path)
         weight_file_path = RecursiveRNN1.get_weight_file_path(model_dir_path)
         checkpoint = ModelCheckpoint(weight_file_path)
@@ -371,6 +378,10 @@ class RecursiveRNN2(object):
         self.target_word2idx = config['target_word2idx']
         self.target_idx2word = config['target_idx2word']
         self.config = config
+
+        self.version = 0
+        if 'version' in config:
+            self.version = config['version']
 
         # article input model
         inputs1 = Input(shape=(self.max_input_seq_length,))
@@ -467,6 +478,9 @@ class RecursiveRNN2(object):
             epochs = EPOCHS
         if model_dir_path is None:
             model_dir_path = './models'
+
+        self.version += 1
+        self.config['version'] = self.version
 
         config_file_path = RecursiveRNN2.get_config_file_path(model_dir_path)
         weight_file_path = RecursiveRNN2.get_weight_file_path(model_dir_path)

@@ -13,6 +13,7 @@ The follow neural network models are implemented and studied for text summarizat
     * prediction: demo code is available in keras_text_summarization/training/seq2seq_glove_predict.py (one hot encoding for encoder input)
     * training: run keras_text_summarization/training/seq2seq_glove_v2_train.py (GloVe encoding for both encoder input and decoder input)
     * prediction: demo code is available in keras_text_summarization/training/seq2seq_glove_v2_predict.py (GloVe encoding for both encoder input and decoder input)
+
 The trained models are available in the keras_text_summarization/training/models folder
 
 # Usage
