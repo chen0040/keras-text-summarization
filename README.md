@@ -7,9 +7,12 @@ Text summarization using seq2seq and encoder-decoder recurrent networks in Keras
 The follow neural network models are implemented and studied for text summarization:
 
 * Seq2Seq 
-    * training: run keras_text_summarization/training/seq2seq_train.py
-    * prediction: demo code is available in keras_text_summarization/training/seq2seq_predict.py
-
+    * training: run keras_text_summarization/training/seq2seq_train.py (one hot encoding)
+    * prediction: demo code is available in keras_text_summarization/training/seq2seq_predict.py (one hot encoding)
+    * training: run keras_text_summarization/training/seq2seq_glove_train.py (GloVe encoding for encoder input)
+    * prediction: demo code is available in keras_text_summarization/training/seq2seq_glove_predict.py (one hot encoding for encoder input)
+    * training: run keras_text_summarization/training/seq2seq_glove_v2_train.py (GloVe encoding for both encoder input and decoder input)
+    * prediction: demo code is available in keras_text_summarization/training/seq2seq_glove_v2_predict.py (GloVe encoding for both encoder input and decoder input)
 The trained models are available in the keras_text_summarization/training/models folder
 
 # Usage
