@@ -20,6 +20,7 @@ def main():
     df = pd.read_csv(data_dir_path + "/fake_or_real_news.csv")
 
     print('extract configuration from input texts ...')
+    # df = df.loc[df.index < 1000]
     Y = df.title
     X = df['text']
     config = fit_text(X, Y)
@@ -38,7 +39,7 @@ def main():
     print('testing size: ', len(Xtest))
 
     print('start fitting ...')
-    history = summarizer.fit(Xtrain, Ytrain, Xtest, Ytest, epochs=100)
+    history = summarizer.fit(Xtrain, Ytrain, Xtest, Ytest, epochs=100, batch_size=20)
 
     history_plot_file_path = report_dir_path + '/' + OneShotRNN.model_name + '-history.png'
     if LOAD_EXISTING_WEIGHTS:

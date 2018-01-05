@@ -19,7 +19,7 @@ def main():
     print('loading csv file ...')
     df = pd.read_csv(data_dir_path + "/fake_or_real_news.csv")
 
-    df = df.loc[df.index < 1000]
+    # df = df.loc[df.index < 1000]
 
     print('extract configuration from input texts ...')
     Y = df.title

@@ -95,15 +95,15 @@ class OneShotRNN(object):
         print(temp.shape)
         return temp
 
-    def generate_batch(self, x_samples, y_samples):
-        num_batches = len(x_samples) // BATCH_SIZE
+    def generate_batch(self, x_samples, y_samples, batch_size):
+        num_batches = len(x_samples) // batch_size
         while True:
             for batchIdx in range(0, num_batches):
-                start = batchIdx * BATCH_SIZE
-                end = (batchIdx + 1) * BATCH_SIZE
+                start = batchIdx * batch_size
+                end = (batchIdx + 1) * batch_size
                 encoder_input_data_batch = pad_sequences(x_samples[start:end], self.max_input_seq_length)
                 decoder_target_data_batch = np.zeros(
-                    shape=(BATCH_SIZE, self.max_target_seq_length, self.num_target_tokens))
+                    shape=(batch_size, self.max_target_seq_length, self.num_target_tokens))
                 for lineIdx, target_words in enumerate(y_samples[start:end]):
                     for idx, w in enumerate(target_words):
                         w2idx = 0  # default [UNK]
@@ -125,11 +125,13 @@ class OneShotRNN(object):
     def get_architecture_file_path(model_dir_path):
         return model_dir_path + '/' + OneShotRNN.model_name + '-architecture.json'
 
-    def fit(self, Xtrain, Ytrain, Xtest, Ytest, epochs=None, model_dir_path=None):
+    def fit(self, Xtrain, Ytrain, Xtest, Ytest, epochs=None, model_dir_path=None, batch_size=None):
         if epochs is None:
             epochs = EPOCHS
         if model_dir_path is None:
             model_dir_path = './models'
+        if batch_size is None:
+            batch_size = BATCH_SIZE
 
         self.version += 1
         self.config['version'] = self.version
@@ -147,11 +149,11 @@ class OneShotRNN(object):
         Xtrain = self.transform_input_text(Xtrain)
         Xtest = self.transform_input_text(Xtest)
 
-        train_gen = self.generate_batch(Xtrain, Ytrain)
-        test_gen = self.generate_batch(Xtest, Ytest)
+        train_gen = self.generate_batch(Xtrain, Ytrain, batch_size)
+        test_gen = self.generate_batch(Xtest, Ytest, batch_size)
 
-        train_num_batches = len(Xtrain) // BATCH_SIZE
-        test_num_batches = len(Xtest) // BATCH_SIZE
+        train_num_batches = len(Xtrain) // batch_size
+        test_num_batches = len(Xtest) // batch_size
 
         history = self.model.fit_generator(generator=train_gen, steps_per_epoch=train_num_batches,
                                            epochs=epochs,
@@ -171,8 +173,8 @@ class OneShotRNN(object):
         input_seq.append(input_wids)
         input_seq = pad_sequences(input_seq, self.max_input_seq_length)
         predicted = self.model.predict(input_seq)
-        predicted_word_idx_list = np.argmax(predicted)
-        predicted_word_list = [self.target_word2idx[wid] for wid in predicted_word_idx_list]
+        predicted_word_idx_list = np.argmax(predicted, axis=1)
+        predicted_word_list = [self.target_idx2word[wid] for wid in predicted_word_idx_list[0]]
         return predicted_word_list
 
 
@@ -369,7 +371,7 @@ class RecursiveRNN1(object):
         while not terminated:
             output_tokens = self.model.predict([input_seq, sum_input_seq])
 
-            sample_token_idx = np.argmax(output_tokens[0, -1, :])
+            sample_token_idx = np.argmax(output_tokens[0, :])
             sample_word = self.target_idx2word[sample_token_idx]
             target_text_len += 1
 
@@ -564,7 +566,7 @@ class RecursiveRNN2(object):
         while not terminated:
             output_tokens = self.model.predict([input_seq, sum_input_seq])
 
-            sample_token_idx = np.argmax(output_tokens[0, -1, :])
+            sample_token_idx = np.argmax(output_tokens[0, :])
             sample_word = self.target_idx2word[sample_token_idx]
             target_text_len += 1
 

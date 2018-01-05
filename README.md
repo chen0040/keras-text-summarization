@@ -23,7 +23,7 @@ There are three variants of seq2seq model implemented for the text summarization
     * training: run [keras_text_summarization/training/seq2seq_glove_v2_train.py](keras_text_summarization/training/seq2seq_glove_v2_train.py)
     * prediction: demo code is available in [keras_text_summarization/training/seq2seq_glove_v2_predict.py](keras_text_summarization/training/seq2seq_glove_v2_predict.py) 
     
-### Other encoder-decoder recurrent models
+### Other RNN models
 
 There are currently 3 other encoder-decoder recurrent models based on some recommendation [here](https://machinelearningmastery.com/encoder-decoder-models-text-summarization-keras/)
 
@@ -39,7 +39,11 @@ The recursive RNN 1 takes the artcile content and the current built-up summarize
 The recursive RNN 2 takes the artcile content and the current built-up summarized text to predict the next character of the summarized text.
     * training: run [keras_text_summarization/training/recursive_rnn_v2.py](keras_text_summarization/training/recursive_rnn_v2.py)
 
-The trained models are available in the keras_text_summarization/training/models folder
+The trained models are available in the keras_text_summarization/training/models folder 
+
+# Notes
+
+So far the seq2seq models seems to outperform the three RNN models proposed in [here](https://machinelearningmastery.com/encoder-decoder-models-text-summarization-keras/). 
 
 # Usage
 
