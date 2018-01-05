@@ -1,7 +1,7 @@
 from __future__ import print_function
 
-from keras.models import Model
-from keras.layers import Embedding, Dense, Input, RepeatVector, TimeDistributed, concatenate
+from keras.models import Model, Sequential
+from keras.layers import Embedding, Dense, Input, RepeatVector, TimeDistributed, concatenate, Merge, add
 from keras.layers.recurrent import LSTM
 from keras.preprocessing.sequence import pad_sequences
 from keras.callbacks import ModelCheckpoint
@@ -15,7 +15,6 @@ EPOCHS = 10
 
 
 class OneShotRNN(object):
-
     model_name = 'one-shot-rnn'
     """
     The first alternative model is to generate the entire output sequence in a one-shot manner.
@@ -36,18 +35,27 @@ class OneShotRNN(object):
         self.target_word2idx = config['target_word2idx']
         self.target_idx2word = config['target_idx2word']
         self.config = config
+        self.version = 0
+        if 'version' in config:
+            self.version = config['version']
+
+        print('max_input_seq_length', self.max_input_seq_length)
+        print('max_target_seq_length', self.max_target_seq_length)
+        print('num_input_tokens', self.num_input_tokens)
+        print('num_target_tokens', self.num_target_tokens)
 
         # encoder input model
-        inputs = Input(shape=(self.max_input_seq_length,))
-        encoder1 = Embedding(self.num_input_tokens, 128)(inputs)
-        encoder2 = LSTM(128)(encoder1)
-        encoder3 = RepeatVector(self.max_target_seq_length)(encoder2)
-        # decoder output model
-        decoder1 = LSTM(128, return_sequences=True)(encoder3)
-        outputs = TimeDistributed(Dense(self.num_target_tokens, activation='softmax'))(decoder1)
-        # tie it together
-        model = Model(inputs=inputs, outputs=outputs)
-        model.compile(loss='categorical_crossentropy', optimizer='adam')
+        model = Sequential()
+        model.add(Embedding(output_dim=128, input_dim=self.num_input_tokens, input_length=self.max_input_seq_length))
+
+        # encoder model
+        model.add(LSTM(128))
+        model.add(RepeatVector(self.max_target_seq_length))
+        # decoder model
+        model.add(LSTM(128, return_sequences=True))
+        model.add(TimeDistributed(Dense(self.num_target_tokens, activation='softmax')))
+
+        model.compile(loss='categorical_crossentropy', optimizer='adam', metrics=['accuracy'])
 
         self.model = model
 
@@ -94,7 +102,8 @@ class OneShotRNN(object):
                 start = batchIdx * BATCH_SIZE
                 end = (batchIdx + 1) * BATCH_SIZE
                 encoder_input_data_batch = pad_sequences(x_samples[start:end], self.max_input_seq_length)
-                decoder_target_data_batch = np.zeros(shape=(BATCH_SIZE, self.max_target_seq_length, self.num_target_tokens))
+                decoder_target_data_batch = np.zeros(
+                    shape=(BATCH_SIZE, self.max_target_seq_length, self.num_target_tokens))
                 for lineIdx, target_words in enumerate(y_samples[start:end]):
                     for idx, w in enumerate(target_words):
                         w2idx = 0  # default [UNK]
@@ -121,6 +130,9 @@ class OneShotRNN(object):
             epochs = EPOCHS
         if model_dir_path is None:
             model_dir_path = './models'
+
+        self.version += 1
+        self.config['version'] = self.version
 
         config_file_path = OneShotRNN.get_config_file_path(model_dir_path)
         weight_file_path = OneShotRNN.get_weight_file_path(model_dir_path)
@@ -197,21 +209,30 @@ class RecursiveRNN1(object):
             self.version = 0
         self.config = config
 
-        # encoder input model
-        # source text input model
-        inputs1 = Input(shape=(self.max_input_seq_length,))
-        am1 = Embedding(self.num_input_tokens, 128)(inputs1)
-        am2 = LSTM(128)(am1)
-        # summary input model
-        inputs2 = Input(shape=(self.max_target_seq_length,))
-        sm1 = Embedding(self.num_target_tokens, 128)(inputs2)
-        sm2 = LSTM(128)(sm1)
-        # decoder output model
-        decoder1 = concatenate([am2, sm2])
-        outputs = Dense(self.num_target_tokens, activation='softmax')(decoder1)
-        # tie it together [article, summary] [word]
-        model = Model(inputs=[inputs1, inputs2], outputs=outputs)
-        model.compile(loss='categorical_crossentropy', optimizer='adam')
+        print('max_input_seq_length', self.max_input_seq_length)
+        print('max_target_seq_length', self.max_target_seq_length)
+        print('num_input_tokens', self.num_input_tokens)
+        print('num_target_tokens', self.num_target_tokens)
+
+        context_inputs = Input(shape=(None,), name='context_inputs')
+        context_inputs = Embedding(input_dim=self.num_input_tokens, output_dim=128,
+                                   input_length=self.max_input_seq_length)(context_inputs)
+
+        summary_inputs = Input(shape=(None,), name='summary_inputs')
+        summary_inputs = Embedding(input_dim=self.num_target_tokens, output_dim=128,
+                                   input_length=self.max_target_seq_length)(summary_inputs)
+        # encoded_question = Dropout(0.3)(question_inputs)
+        summary_inputs = LSTM(units=128, name='summary_encoder_lstm')(summary_inputs)
+        summary_inputs = RepeatVector(self.max_input_seq_length)(summary_inputs)
+
+        merged = add([context_inputs, summary_inputs])
+        merged = LSTM(units=128,
+                      name='summary_encoder_lstm', return_state=True)(merged)
+
+        output = Dense(self.num_target_tokens, activation='softmax')(merged)
+
+        model = Model([context_inputs, summary_inputs], output)
+        model.compile(loss='categorical_crossentropy', optimizer='adam', metrics=['accuracy'])
         self.model = model
 
     def load_weights(self, weight_file_path):
@@ -539,4 +560,3 @@ class RecursiveRNN2(object):
             else:
                 sum_input_seq[0, target_text_len] = sample_token_idx
         return target_text
-
