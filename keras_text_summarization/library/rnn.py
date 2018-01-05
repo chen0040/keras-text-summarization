@@ -214,24 +214,19 @@ class RecursiveRNN1(object):
         print('num_input_tokens', self.num_input_tokens)
         print('num_target_tokens', self.num_target_tokens)
 
-        context_inputs = Input(shape=(None,), name='context_inputs')
-        context_inputs = Embedding(input_dim=self.num_input_tokens, output_dim=128,
-                                   input_length=self.max_input_seq_length)(context_inputs)
+        inputs1 = Input(shape=(self.max_input_seq_length,))
+        am1 = Embedding(self.num_input_tokens, 128)(inputs1)
+        am2 = LSTM(128)(am1)
 
-        summary_inputs = Input(shape=(None,), name='summary_inputs')
-        summary_inputs = Embedding(input_dim=self.num_target_tokens, output_dim=128,
-                                   input_length=self.max_target_seq_length)(summary_inputs)
-        # encoded_question = Dropout(0.3)(question_inputs)
-        summary_inputs = LSTM(units=128, name='summary_encoder_lstm')(summary_inputs)
-        summary_inputs = RepeatVector(self.max_input_seq_length)(summary_inputs)
+        inputs2 = Input(shape=(self.max_target_seq_length,))
+        sm1 = Embedding(self.num_target_tokens, 128)(inputs2)
+        sm2 = LSTM(128)(sm1)
 
-        merged = add([context_inputs, summary_inputs])
-        merged = LSTM(units=128,
-                      name='summary_encoder_lstm', return_state=True)(merged)
+        decoder1 = concatenate([am2, sm2])
+        outputs = Dense(self.num_target_tokens, activation='softmax')(decoder1)
 
-        output = Dense(self.num_target_tokens, activation='softmax')(merged)
+        model = Model(inputs=[inputs1, inputs2], outputs=outputs)
 
-        model = Model([context_inputs, summary_inputs], output)
         model.compile(loss='categorical_crossentropy', optimizer='adam', metrics=['accuracy'])
         self.model = model
 
@@ -272,29 +267,39 @@ class RecursiveRNN1(object):
         return temp
 
     def generate_batch(self, x_samples, y_samples):
-        num_batches = len(x_samples) // BATCH_SIZE
+        encoder_input_data_batch = []
+        decoder_input_data_batch = []
+        decoder_target_data_batch = []
+        line_idx = 0
         while True:
-            for batchIdx in range(0, num_batches):
-                start = batchIdx * BATCH_SIZE
-                end = (batchIdx + 1) * BATCH_SIZE
-                encoder_input_data_batch = pad_sequences(x_samples[start:end], self.max_input_seq_length)
-                decoder_input_data_batch = []
-                decoder_target_data_batch = np.zeros(
-                    shape=(BATCH_SIZE, self.max_target_seq_length, self.num_target_tokens))
-                for lineIdx, target_words in enumerate(y_samples[start:end]):
-                    decoder_line = []
+            for recordIdx in range(0, len(x_samples)):
+                y = y_samples[recordIdx]
+                x = x_samples[recordIdx]
+                for target_words in enumerate(y):
+                    decoder_input_line = []
+
                     for idx, w in enumerate(target_words):
                         w2idx = 0  # default [UNK]
                         if w in self.target_word2idx:
                             w2idx = self.target_word2idx[w]
-                        if len(decoder_line) < self.max_target_seq_length:
-                            decoder_line.append(w2idx)
+                        decoder_input_line.append(w2idx)
+                        decoder_target_label = np.zeros(self.num_target_tokens)
                         if w2idx != 0:
                             if idx != 0:
-                                decoder_target_data_batch[lineIdx, idx, w2idx] = 1
-                    decoder_input_data_batch.append(decoder_line)
-                decoder_input_data_batch = pad_sequences(decoder_input_data_batch, self.max_target_seq_length)
-                yield [encoder_input_data_batch, decoder_input_data_batch], decoder_target_data_batch
+                                decoder_target_label[w2idx] = 1
+                        decoder_input_data_batch.append(np.array(decoder_input_line))
+                        encoder_input_data_batch.append(x)
+                        decoder_target_data_batch.append(decoder_target_label)
+
+                line_idx += 1
+                if line_idx >= BATCH_SIZE:
+                    yield [pad_sequences(encoder_input_data_batch, self.max_input_seq_length),
+                           pad_sequences(decoder_input_data_batch,
+                                         self.max_target_seq_length)], np.array(decoder_target_data_batch)
+                    line_idx = 0
+                    encoder_input_data_batch = []
+                    decoder_input_data_batch = []
+                    decoder_target_data_batch = []
 
     @staticmethod
     def get_weight_file_path(model_dir_path):
@@ -458,29 +463,38 @@ class RecursiveRNN2(object):
         return temp
 
     def generate_batch(self, x_samples, y_samples):
-        num_batches = len(x_samples) // BATCH_SIZE
+        encoder_input_data_batch = []
+        decoder_input_data_batch = []
+        decoder_target_data_batch = np.zeros(
+            shape=(BATCH_SIZE, self.max_target_seq_length, self.num_target_tokens))
+        line_idx = 0
         while True:
-            for batchIdx in range(0, num_batches):
-                start = batchIdx * BATCH_SIZE
-                end = (batchIdx + 1) * BATCH_SIZE
-                encoder_input_data_batch = pad_sequences(x_samples[start:end], self.max_input_seq_length)
-                decoder_input_data_batch = []
-                decoder_target_data_batch = np.zeros(
-                    shape=(BATCH_SIZE, self.max_target_seq_length, self.num_target_tokens))
-                for lineIdx, target_words in enumerate(y_samples[start:end]):
+            for recordIdx in range(0, len(x_samples)):
+                y = y_samples[recordIdx]
+                x = x_samples[recordIdx]
+                for target_words in enumerate(y):
                     decoder_line = []
+
                     for idx, w in enumerate(target_words):
                         w2idx = 0  # default [UNK]
                         if w in self.target_word2idx:
                             w2idx = self.target_word2idx[w]
-                        if len(decoder_line) < self.max_target_seq_length:
-                            decoder_line.append(w2idx)
+                        decoder_line.append(w2idx)
                         if w2idx != 0:
                             if idx != 0:
-                                decoder_target_data_batch[lineIdx, idx, w2idx] = 1
-                    decoder_input_data_batch.append(decoder_line)
-                decoder_input_data_batch = pad_sequences(decoder_input_data_batch, self.max_target_seq_length)
-                yield [encoder_input_data_batch, decoder_input_data_batch], decoder_target_data_batch
+                                decoder_target_data_batch[line_idx, idx-1, w2idx] = 1
+                        decoder_input_data_batch.append(decoder_line)
+                        encoder_input_data_batch.append(x)
+                        line_idx += 1
+                        if line_idx >= BATCH_SIZE:
+                            yield [pad_sequences(encoder_input_data_batch, self.max_input_seq_length),
+                                   pad_sequences(decoder_input_data_batch, self.max_target_seq_length)], decoder_target_data_batch
+                            line_idx = 0
+                            encoder_input_data_batch = []
+                            decoder_input_data_batch = []
+                            decoder_target_data_batch = np.zeros(
+                                shape=(BATCH_SIZE, self.max_target_seq_length, self.num_target_tokens))
+
 
     @staticmethod
     def get_weight_file_path(model_dir_path):
@@ -519,8 +533,8 @@ class RecursiveRNN2(object):
         train_gen = self.generate_batch(Xtrain, Ytrain)
         test_gen = self.generate_batch(Xtest, Ytest)
 
-        train_num_batches = len(Xtrain) // BATCH_SIZE
-        test_num_batches = len(Xtest) // BATCH_SIZE
+        train_num_batches = len(Xtrain) * self.max_target_seq_length // BATCH_SIZE
+        test_num_batches = len(Xtest) * self.max_target_seq_length // BATCH_SIZE
 
         history = self.model.fit_generator(generator=train_gen, steps_per_epoch=train_num_batches,
                                            epochs=epochs,
