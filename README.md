@@ -6,13 +6,38 @@ Text summarization using seq2seq and encoder-decoder recurrent networks in Keras
 
 The follow neural network models are implemented and studied for text summarization:
 
-* Seq2Seq 
-    * training: run keras_text_summarization/training/seq2seq_train.py (one hot encoding)
-    * prediction: demo code is available in keras_text_summarization/training/seq2seq_predict.py (one hot encoding)
-    * training: run keras_text_summarization/training/seq2seq_glove_train.py (GloVe encoding for encoder input)
-    * prediction: demo code is available in keras_text_summarization/training/seq2seq_glove_predict.py (one hot encoding for encoder input)
-    * training: run keras_text_summarization/training/seq2seq_glove_v2_train.py (GloVe encoding for both encoder input and decoder input)
-    * prediction: demo code is available in keras_text_summarization/training/seq2seq_glove_v2_predict.py (GloVe encoding for both encoder input and decoder input)
+### Seq2Seq
+
+The seq2seq models encodes the content of an article (encoder input) and one character (decoder input) from the summarized text to predict the next character in the summarized text
+
+The implementation can be found in [keras_text_summarization/library/seq2seq.py](keras-text-summarization/blob/master/keras_text_summarization/library/seq2seq.py)
+
+There are three variants of seq2seq model implemented for the text summarization   
+* Seq2SeqSummarizer (one hot encoding)
+    * training: run [keras_text_summarization/training/seq2seq_train.py](keras_text_summarization/training/seq2seq_train.py ) 
+    * prediction: demo code is available in [keras_text_summarization/training/seq2seq_predict.py](keras_text_summarization/training/seq2seq_predict.py) 
+* Seq2SeqGloVeSummarizer (GloVe encoding for encoder input)
+    * training: run [keras_text_summarization/training/seq2seq_glove_train.py](keras_text_summarization/training/seq2seq_glove_train.py) 
+    * prediction: demo code is available in [keras_text_summarization/training/seq2seq_glove_predict.py](keras_text_summarization/training/seq2seq_glove_predict.py) 
+* Seq2SeqGloVeSummarizerV2 (GloVe encoding for both encoder input and decoder input)
+    * training: run [keras_text_summarization/training/seq2seq_glove_v2_train.py](keras_text_summarization/training/seq2seq_glove_v2_train.py)
+    * prediction: demo code is available in [keras_text_summarization/training/seq2seq_glove_v2_predict.py](keras_text_summarization/training/seq2seq_glove_v2_predict.py) 
+    
+### Other encoder-decoder recurrent models
+
+There are currently 3 other encoder-decoder recurrent models based on some recommendation [here](https://machinelearningmastery.com/encoder-decoder-models-text-summarization-keras/)
+
+The implementation can be found in [keras_text_summarization/library/rnn.py](keras-text-summarization/blob/master/keras_text_summarization/library/rnn.py)
+
+* One-Shot RNN (OneShotRNN in [rnn.py](keras-text-summarization/blob/master/keras_text_summarization/library/rnn.py)):
+The one-shot RNN is a very simple encoder-decoder recurrent network model which encodes the content of an article and decodes the entire content of the summarized text
+    * training: run [keras_text_summarization/training/one_hot_rnn_train.py](keras_text_summarization/training/one_hot_rnn_train.py)
+* Recursive RNN 1 (RecursiveRNN1 in [rnn.py](keras-text-summarization/blob/master/keras_text_summarization/library/rnn.py)):
+The recursive RNN 1 takes the artcile content and the current built-up summarized text to predict the next character of the summarized text.
+    * training: run [keras_text_summarization/training/recursive_rnn_v1.py](keras_text_summarization/training/recursive_rnn_v1.py)
+* Recursive RNN 2 (RecursiveRNN2 in [rnn.py](keras-text-summarization/blob/master/keras_text_summarization/library/rnn.py)):
+The recursive RNN 2 takes the artcile content and the current built-up summarized text to predict the next character of the summarized text.
+    * training: run [keras_text_summarization/training/recursive_rnn_v2.py](keras_text_summarization/training/recursive_rnn_v2.py)
 
 The trained models are available in the keras_text_summarization/training/models folder
 
@@ -76,7 +101,7 @@ After the training is completed, the trained models will be saved as cf-v1-*.* i
 
 ### Summarization
 
-To use the trained deep learning model to summarize an article, you can use the following code:
+To use the trained deep learning model to summarize an article, the following code demo how to do this:
 
 ```python
 
