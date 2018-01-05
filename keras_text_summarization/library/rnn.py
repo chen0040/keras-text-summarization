@@ -266,7 +266,7 @@ class RecursiveRNN1(object):
         print(temp.shape)
         return temp
 
-    def generate_batch(self, x_samples, y_samples):
+    def generate_batch(self, x_samples, y_samples, batch_size):
         encoder_input_data_batch = []
         decoder_input_data_batch = []
         decoder_target_data_batch = []
@@ -292,7 +292,7 @@ class RecursiveRNN1(object):
                         decoder_target_data_batch.append(decoder_target_label)
 
                 line_idx += 1
-                if line_idx >= BATCH_SIZE:
+                if line_idx >= batch_size:
                     yield [pad_sequences(encoder_input_data_batch, self.max_input_seq_length),
                            pad_sequences(decoder_input_data_batch,
                                          self.max_target_seq_length)], np.array(decoder_target_data_batch)
@@ -313,11 +313,13 @@ class RecursiveRNN1(object):
     def get_architecture_file_path(model_dir_path):
         return model_dir_path + '/' + RecursiveRNN1.model_name + '-architecture.json'
 
-    def fit(self, Xtrain, Ytrain, Xtest, Ytest, epochs=None, model_dir_path=None):
+    def fit(self, Xtrain, Ytrain, Xtest, Ytest, epochs=None, model_dir_path=None, batch_size=None):
         if epochs is None:
             epochs = EPOCHS
         if model_dir_path is None:
             model_dir_path = './models'
+        if batch_size is None:
+            batch_size = BATCH_SIZE
 
         self.version += 1
         self.config['version'] = self.version
@@ -335,11 +337,11 @@ class RecursiveRNN1(object):
         Xtrain = self.transform_input_text(Xtrain)
         Xtest = self.transform_input_text(Xtest)
 
-        train_gen = self.generate_batch(Xtrain, Ytrain)
-        test_gen = self.generate_batch(Xtest, Ytest)
+        train_gen = self.generate_batch(Xtrain, Ytrain, batch_size)
+        test_gen = self.generate_batch(Xtest, Ytest, batch_size)
 
-        train_num_batches = len(Xtrain) // BATCH_SIZE
-        test_num_batches = len(Xtest) // BATCH_SIZE
+        train_num_batches = len(Xtrain) // batch_size
+        test_num_batches = len(Xtest) // batch_size
 
         history = self.model.fit_generator(generator=train_gen, steps_per_epoch=train_num_batches,
                                            epochs=epochs,
