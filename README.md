@@ -10,7 +10,7 @@ The follow neural network models are implemented and studied for text summarizat
 
 The seq2seq models encodes the content of an article (encoder input) and one character (decoder input) from the summarized text to predict the next character in the summarized text
 
-The implementation can be found in [keras_text_summarization/library/seq2seq.py](keras-text-summarization/blob/master/keras_text_summarization/library/seq2seq.py)
+The implementation can be found in [keras_text_summarization/library/seq2seq.py](keras-text-summarization/library/seq2seq.py)
 
 There are three variants of seq2seq model implemented for the text summarization   
 * Seq2SeqSummarizer (one hot encoding)
@@ -27,15 +27,15 @@ There are three variants of seq2seq model implemented for the text summarization
 
 There are currently 3 other encoder-decoder recurrent models based on some recommendation [here](https://machinelearningmastery.com/encoder-decoder-models-text-summarization-keras/)
 
-The implementation can be found in [keras_text_summarization/library/rnn.py](keras-text-summarization/blob/master/keras_text_summarization/library/rnn.py)
+The implementation can be found in [keras_text_summarization/library/rnn.py](keras_text_summarization/library/rnn.py)
 
-* One-Shot RNN (OneShotRNN in [rnn.py](keras-text-summarization/blob/master/keras_text_summarization/library/rnn.py)):
+* One-Shot RNN (OneShotRNN in [rnn.py](keras_text_summarization/library/rnn.py)):
 The one-shot RNN is a very simple encoder-decoder recurrent network model which encodes the content of an article and decodes the entire content of the summarized text
     * training: run [keras_text_summarization/training/one_hot_rnn_train.py](keras_text_summarization/training/one_hot_rnn_train.py)
-* Recursive RNN 1 (RecursiveRNN1 in [rnn.py](keras-text-summarization/blob/master/keras_text_summarization/library/rnn.py)):
+* Recursive RNN 1 (RecursiveRNN1 in [rnn.py](keras_text_summarization/library/rnn.py)):
 The recursive RNN 1 takes the artcile content and the current built-up summarized text to predict the next character of the summarized text.
     * training: run [keras_text_summarization/training/recursive_rnn_v1.py](keras_text_summarization/training/recursive_rnn_v1.py)
-* Recursive RNN 2 (RecursiveRNN2 in [rnn.py](keras-text-summarization/blob/master/keras_text_summarization/library/rnn.py)):
+* Recursive RNN 2 (RecursiveRNN2 in [rnn.py](keras_text_summarization/library/rnn.py)):
 The recursive RNN 2 takes the artcile content and the current built-up summarized text to predict the next character of the summarized text.
     * training: run [keras_text_summarization/training/recursive_rnn_v2.py](keras_text_summarization/training/recursive_rnn_v2.py)
 
