@@ -564,17 +564,15 @@ class RecursiveRNN2(object):
             input_wids.append(idx)
         input_seq.append(input_wids)
         input_seq = pad_sequences(input_seq, self.max_input_seq_length)
-        sum_input_seq = np.zeros(
-            shape=(1, self.max_target_seq_length))
         start_token = self.target_word2idx['START']
-        sum_input_seq[0, self.max_target_seq_length - 1] = start_token
+        wid_list = [start_token]
+        sum_input_seq = pad_sequences([wid_list], self.max_target_seq_length)
         terminated = False
 
         target_text = ''
-        wid_list = [start_token]
+
         while not terminated:
             output_tokens = self.model.predict([input_seq, sum_input_seq])
-
             sample_token_idx = np.argmax(output_tokens[0, :])
             sample_word = self.target_idx2word[sample_token_idx]
             wid_list.append(sample_token_idx)
@@ -585,7 +583,5 @@ class RecursiveRNN2(object):
             if sample_word == 'END' or len(wid_list) >= self.max_target_seq_length:
                 terminated = True
             else:
-                for j in range(0, len(wid_list)):
-                    k = self.max_target_seq_length - len(wid_list) + j
-                    sum_input_seq[0, k] = wid_list[j]
+                sum_input_seq = pad_sequences([wid_list], self.max_target_seq_length)
         return target_text.strip()
