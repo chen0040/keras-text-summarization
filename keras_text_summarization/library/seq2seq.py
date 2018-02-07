@@ -10,7 +10,7 @@ import numpy as np
 import os
 
 HIDDEN_UNITS = 100
-BATCH_SIZE = 64
+DEFAULT_BATCH_SIZE = 64
 VERBOSE = 1
 EPOCHS = 10
 
@@ -98,15 +98,15 @@ class Seq2SeqSummarizer(object):
         print(temp.shape)
         return temp
 
-    def generate_batch(self, x_samples, y_samples):
-        num_batches = len(x_samples) // BATCH_SIZE
+    def generate_batch(self, x_samples, y_samples, batch_size):
+        num_batches = len(x_samples) // batch_size
         while True:
             for batchIdx in range(0, num_batches):
-                start = batchIdx * BATCH_SIZE
-                end = (batchIdx + 1) * BATCH_SIZE
+                start = batchIdx * batch_size
+                end = (batchIdx + 1) * batch_size
                 encoder_input_data_batch = pad_sequences(x_samples[start:end], self.max_input_seq_length)
-                decoder_target_data_batch = np.zeros(shape=(BATCH_SIZE, self.max_target_seq_length, self.num_target_tokens))
-                decoder_input_data_batch = np.zeros(shape=(BATCH_SIZE, self.max_target_seq_length, self.num_target_tokens))
+                decoder_target_data_batch = np.zeros(shape=(batch_size, self.max_target_seq_length, self.num_target_tokens))
+                decoder_input_data_batch = np.zeros(shape=(batch_size, self.max_target_seq_length, self.num_target_tokens))
                 for lineIdx, target_words in enumerate(y_samples[start:end]):
                     for idx, w in enumerate(target_words):
                         w2idx = 0  # default [UNK]
@@ -130,11 +130,13 @@ class Seq2SeqSummarizer(object):
     def get_architecture_file_path(model_dir_path):
         return model_dir_path + '/' + Seq2SeqSummarizer.model_name + '-architecture.json'
 
-    def fit(self, Xtrain, Ytrain, Xtest, Ytest, epochs=None, model_dir_path=None):
+    def fit(self, Xtrain, Ytrain, Xtest, Ytest, epochs=None, batch_size=None, model_dir_path=None):
         if epochs is None:
             epochs = EPOCHS
         if model_dir_path is None:
             model_dir_path = './models'
+        if batch_size is None:
+            batch_size = DEFAULT_BATCH_SIZE
 
         self.version += 1
         self.config['version'] = self.version
@@ -151,11 +153,11 @@ class Seq2SeqSummarizer(object):
         Xtrain = self.transform_input_text(Xtrain)
         Xtest = self.transform_input_text(Xtest)
 
-        train_gen = self.generate_batch(Xtrain, Ytrain)
-        test_gen = self.generate_batch(Xtest, Ytest)
+        train_gen = self.generate_batch(Xtrain, Ytrain, batch_size)
+        test_gen = self.generate_batch(Xtest, Ytest, batch_size)
 
-        train_num_batches = len(Xtrain) // BATCH_SIZE
-        test_num_batches = len(Xtest) // BATCH_SIZE
+        train_num_batches = len(Xtrain) // batch_size
+        test_num_batches = len(Xtest) // batch_size
 
         history = self.model.fit_generator(generator=train_gen, steps_per_epoch=train_num_batches,
                                            epochs=epochs,
@@ -288,15 +290,15 @@ class Seq2SeqGloVeSummarizer(object):
         print(temp.shape)
         return temp
 
-    def generate_batch(self, x_samples, y_samples):
-        num_batches = len(x_samples) // BATCH_SIZE
+    def generate_batch(self, x_samples, y_samples, batch_size):
+        num_batches = len(x_samples) // batch_size
         while True:
             for batchIdx in range(0, num_batches):
-                start = batchIdx * BATCH_SIZE
-                end = (batchIdx + 1) * BATCH_SIZE
+                start = batchIdx * batch_size
+                end = (batchIdx + 1) * batch_size
                 encoder_input_data_batch = pad_sequences(x_samples[start:end], self.max_input_seq_length)
-                decoder_target_data_batch = np.zeros(shape=(BATCH_SIZE, self.max_target_seq_length, self.num_target_tokens))
-                decoder_input_data_batch = np.zeros(shape=(BATCH_SIZE, self.max_target_seq_length, self.num_target_tokens))
+                decoder_target_data_batch = np.zeros(shape=(batch_size, self.max_target_seq_length, self.num_target_tokens))
+                decoder_input_data_batch = np.zeros(shape=(batch_size, self.max_target_seq_length, self.num_target_tokens))
                 for lineIdx, target_words in enumerate(y_samples[start:end]):
                     for idx, w in enumerate(target_words):
                         w2idx = 0  # default [UNK]
@@ -320,11 +322,13 @@ class Seq2SeqGloVeSummarizer(object):
     def get_architecture_file_path(model_dir_path):
         return model_dir_path + '/' + Seq2SeqGloVeSummarizer.model_name + '-architecture.json'
 
-    def fit(self, Xtrain, Ytrain, Xtest, Ytest, epochs=None, model_dir_path=None):
+    def fit(self, Xtrain, Ytrain, Xtest, Ytest, epochs=None, batch_size=None, model_dir_path=None):
         if epochs is None:
             epochs = EPOCHS
         if model_dir_path is None:
             model_dir_path = './models'
+        if batch_size is None:
+            batch_size = DEFAULT_BATCH_SIZE
 
         self.version += 1
         self.config['version'] = self.version
@@ -341,11 +345,11 @@ class Seq2SeqGloVeSummarizer(object):
         Xtrain = self.transform_input_text(Xtrain)
         Xtest = self.transform_input_text(Xtest)
 
-        train_gen = self.generate_batch(Xtrain, Ytrain)
-        test_gen = self.generate_batch(Xtest, Ytest)
+        train_gen = self.generate_batch(Xtrain, Ytrain, batch_size)
+        test_gen = self.generate_batch(Xtest, Ytest, batch_size)
 
-        train_num_batches = len(Xtrain) // BATCH_SIZE
-        test_num_batches = len(Xtest) // BATCH_SIZE
+        train_num_batches = len(Xtrain) // batch_size
+        test_num_batches = len(Xtest) // batch_size
 
         history = self.model.fit_generator(generator=train_gen, steps_per_epoch=train_num_batches,
                                            epochs=epochs,
@@ -477,15 +481,15 @@ class Seq2SeqGloVeSummarizerV2(object):
         print(temp.shape)
         return temp
 
-    def generate_batch(self, x_samples, y_samples):
-        num_batches = len(x_samples) // BATCH_SIZE
+    def generate_batch(self, x_samples, y_samples, batch_size):
+        num_batches = len(x_samples) // batch_size
         while True:
             for batchIdx in range(0, num_batches):
-                start = batchIdx * BATCH_SIZE
-                end = (batchIdx + 1) * BATCH_SIZE
+                start = batchIdx * batch_size
+                end = (batchIdx + 1) * batch_size
                 encoder_input_data_batch = pad_sequences(x_samples[start:end], self.max_input_seq_length)
-                decoder_target_data_batch = np.zeros(shape=(BATCH_SIZE, self.max_target_seq_length, self.num_target_tokens))
-                decoder_input_data_batch = np.zeros(shape=(BATCH_SIZE, self.max_target_seq_length, GLOVE_EMBEDDING_SIZE))
+                decoder_target_data_batch = np.zeros(shape=(batch_size, self.max_target_seq_length, self.num_target_tokens))
+                decoder_input_data_batch = np.zeros(shape=(batch_size, self.max_target_seq_length, GLOVE_EMBEDDING_SIZE))
                 for lineIdx, target_words in enumerate(y_samples[start:end]):
                     for idx, w in enumerate(target_words):
                         w2idx = 0  # default [UNK]
@@ -511,11 +515,13 @@ class Seq2SeqGloVeSummarizerV2(object):
     def get_architecture_file_path(model_dir_path):
         return model_dir_path + '/' + Seq2SeqGloVeSummarizerV2.model_name + '-architecture.json'
 
-    def fit(self, Xtrain, Ytrain, Xtest, Ytest, epochs=None, model_dir_path=None):
+    def fit(self, Xtrain, Ytrain, Xtest, Ytest, epochs=None, batch_size=None, model_dir_path=None):
         if epochs is None:
             epochs = EPOCHS
         if model_dir_path is None:
             model_dir_path = './models'
+        if batch_size is None:
+            batch_size = DEFAULT_BATCH_SIZE
 
         self.version += 1
         self.config['version'] = self.version
@@ -532,11 +538,11 @@ class Seq2SeqGloVeSummarizerV2(object):
         Xtrain = self.transform_input_text(Xtrain)
         Xtest = self.transform_input_text(Xtest)
 
-        train_gen = self.generate_batch(Xtrain, Ytrain)
-        test_gen = self.generate_batch(Xtest, Ytest)
+        train_gen = self.generate_batch(Xtrain, Ytrain, batch_size)
+        test_gen = self.generate_batch(Xtest, Ytest, batch_size)
 
-        train_num_batches = len(Xtrain) // BATCH_SIZE
-        test_num_batches = len(Xtest) // BATCH_SIZE
+        train_num_batches = len(Xtrain) // batch_size
+        test_num_batches = len(Xtest) // batch_size
 
         history = self.model.fit_generator(generator=train_gen, steps_per_epoch=train_num_batches,
                                            epochs=epochs,
