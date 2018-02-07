@@ -10,7 +10,7 @@ The follow neural network models are implemented and studied for text summarizat
 
 The seq2seq models encodes the content of an article (encoder input) and one character (decoder input) from the summarized text to predict the next character in the summarized text
 
-The implementation can be found in [keras_text_summarization/library/seq2seq.py](keras-text-summarization/library/seq2seq.py)
+The implementation can be found in [keras_text_summarization/library/seq2seq.py](keras_text_summarization/library/seq2seq.py)
 
 There are three variants of seq2seq model implemented for the text summarization   
 * Seq2SeqSummarizer (one hot encoding)
