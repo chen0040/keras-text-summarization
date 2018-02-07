@@ -40,7 +40,7 @@ def main():
     print('testing size: ', len(Xtest))
 
     print('start fitting ...')
-    history = summarizer.fit(Xtrain, Ytrain, Xtest, Ytest, epochs=20, batch_size=16)
+    history = summarizer.fit(Xtrain, Ytrain, Xtest, Ytest, epochs=20)
 
     history_plot_file_path = report_dir_path + '/' + RecursiveRNN2.model_name + '-history.png'
     if LOAD_EXISTING_WEIGHTS:

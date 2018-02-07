@@ -7,7 +7,7 @@ from keras_text_summarization.library.seq2seq import Seq2SeqSummarizer
 from keras_text_summarization.utility.fake_news_loader import fit_text
 import numpy as np
 
-LOAD_EXISTING_WEIGHTS = True
+LOAD_EXISTING_WEIGHTS = False
 
 
 def main():
@@ -36,7 +36,7 @@ def main():
     print('testing size: ', len(Xtest))
 
     print('start fitting ...')
-    history = summarizer.fit(Xtrain, Ytrain, Xtest, Ytest, epochs=20, batch_size=16)
+    history = summarizer.fit(Xtrain, Ytrain, Xtest, Ytest, epochs=100)
 
     history_plot_file_path = report_dir_path + '/' + Seq2SeqSummarizer.model_name + '-history.png'
     if LOAD_EXISTING_WEIGHTS:

@@ -11,7 +11,7 @@ import os
 HIDDEN_UNITS = 100
 DEFAULT_BATCH_SIZE = 64
 VERBOSE = 1
-EPOCHS = 10
+DEFAULT_EPOCHS = 10
 
 
 class OneShotRNN(object):
@@ -127,7 +127,7 @@ class OneShotRNN(object):
 
     def fit(self, Xtrain, Ytrain, Xtest, Ytest, epochs=None, model_dir_path=None, batch_size=None):
         if epochs is None:
-            epochs = EPOCHS
+            epochs = DEFAULT_EPOCHS
         if model_dir_path is None:
             model_dir_path = './models'
         if batch_size is None:
@@ -317,7 +317,7 @@ class RecursiveRNN1(object):
 
     def fit(self, Xtrain, Ytrain, Xtest, Ytest, epochs=None, model_dir_path=None, batch_size=None):
         if epochs is None:
-            epochs = EPOCHS
+            epochs = DEFAULT_EPOCHS
         if model_dir_path is None:
             model_dir_path = './models'
         if batch_size is None:
@@ -342,8 +342,8 @@ class RecursiveRNN1(object):
         train_gen = self.generate_batch(Xtrain, Ytrain, batch_size)
         test_gen = self.generate_batch(Xtest, Ytest, batch_size)
 
-        train_num_batches = len(Xtrain) // batch_size
-        test_num_batches = len(Xtest) // batch_size
+        train_num_batches = len(Xtrain) * self.max_target_seq_length // batch_size
+        test_num_batches = len(Xtest) * self.max_target_seq_length // batch_size
 
         history = self.model.fit_generator(generator=train_gen, steps_per_epoch=train_num_batches,
                                            epochs=epochs,
@@ -362,18 +362,15 @@ class RecursiveRNN1(object):
             input_wids.append(idx)
         input_seq.append(input_wids)
         input_seq = pad_sequences(input_seq, self.max_input_seq_length)
-        sum_input_seq = np.zeros(
-            shape=(1, self.max_target_seq_length))
         start_token = self.target_word2idx['START']
-        sum_input_seq[0, self.max_target_seq_length-1] = start_token
+        wid_list = [start_token]
+        sum_input_seq = pad_sequences([wid_list], self.max_target_seq_length)
         terminated = False
 
         target_text = ''
-        wid_list = [start_token]
-        while not terminated:
-            print(sum_input_seq)
-            output_tokens = self.model.predict([input_seq, sum_input_seq])
 
+        while not terminated:
+            output_tokens = self.model.predict([input_seq, sum_input_seq])
             sample_token_idx = np.argmax(output_tokens[0, :])
             sample_word = self.target_idx2word[sample_token_idx]
             wid_list.append(sample_token_idx)
@@ -384,9 +381,7 @@ class RecursiveRNN1(object):
             if sample_word == 'END' or len(wid_list) >= self.max_target_seq_length:
                 terminated = True
             else:
-                for j in range(0, len(wid_list)):
-                    k = self.max_target_seq_length - len(wid_list) + j
-                    sum_input_seq[0, k] = wid_list[j]
+                sum_input_seq = pad_sequences([wid_list], self.max_target_seq_length)
         return target_text.strip()
 
 
@@ -524,7 +519,7 @@ class RecursiveRNN2(object):
 
     def fit(self, Xtrain, Ytrain, Xtest, Ytest, epochs=None, model_dir_path=None, batch_size=None):
         if epochs is None:
-            epochs = EPOCHS
+            epochs = DEFAULT_EPOCHS
         if model_dir_path is None:
             model_dir_path = './models'
         if batch_size is None:

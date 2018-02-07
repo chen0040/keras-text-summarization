@@ -12,7 +12,7 @@ import os
 HIDDEN_UNITS = 100
 DEFAULT_BATCH_SIZE = 64
 VERBOSE = 1
-EPOCHS = 10
+DEFAULT_EPOCHS = 10
 
 
 class Seq2SeqSummarizer(object):
@@ -132,7 +132,7 @@ class Seq2SeqSummarizer(object):
 
     def fit(self, Xtrain, Ytrain, Xtest, Ytest, epochs=None, batch_size=None, model_dir_path=None):
         if epochs is None:
-            epochs = EPOCHS
+            epochs = DEFAULT_EPOCHS
         if model_dir_path is None:
             model_dir_path = './models'
         if batch_size is None:
@@ -324,7 +324,7 @@ class Seq2SeqGloVeSummarizer(object):
 
     def fit(self, Xtrain, Ytrain, Xtest, Ytest, epochs=None, batch_size=None, model_dir_path=None):
         if epochs is None:
-            epochs = EPOCHS
+            epochs = DEFAULT_EPOCHS
         if model_dir_path is None:
             model_dir_path = './models'
         if batch_size is None:
@@ -517,7 +517,7 @@ class Seq2SeqGloVeSummarizerV2(object):
 
     def fit(self, Xtrain, Ytrain, Xtest, Ytest, epochs=None, batch_size=None, model_dir_path=None):
         if epochs is None:
-            epochs = EPOCHS
+            epochs = DEFAULT_EPOCHS
         if model_dir_path is None:
             model_dir_path = './models'
         if batch_size is None:
