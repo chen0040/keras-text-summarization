@@ -9,7 +9,7 @@ import numpy as np
 import os
 
 HIDDEN_UNITS = 100
-BATCH_SIZE = 64
+DEFAULT_BATCH_SIZE = 64
 VERBOSE = 1
 EPOCHS = 10
 
@@ -131,7 +131,7 @@ class OneShotRNN(object):
         if model_dir_path is None:
             model_dir_path = './models'
         if batch_size is None:
-            batch_size = BATCH_SIZE
+            batch_size = DEFAULT_BATCH_SIZE
 
         self.version += 1
         self.config['version'] = self.version
@@ -321,7 +321,7 @@ class RecursiveRNN1(object):
         if model_dir_path is None:
             model_dir_path = './models'
         if batch_size is None:
-            batch_size = BATCH_SIZE
+            batch_size = DEFAULT_BATCH_SIZE
 
         self.version += 1
         self.config['version'] = self.version
@@ -364,25 +364,30 @@ class RecursiveRNN1(object):
         input_seq = pad_sequences(input_seq, self.max_input_seq_length)
         sum_input_seq = np.zeros(
             shape=(1, self.max_target_seq_length))
-        sum_input_seq[0, 0] = self.target_word2idx['START']
+        start_token = self.target_word2idx['START']
+        sum_input_seq[0, self.max_target_seq_length-1] = start_token
         terminated = False
-        target_text_len = 0
+
         target_text = ''
+        wid_list = [start_token]
         while not terminated:
+            print(sum_input_seq)
             output_tokens = self.model.predict([input_seq, sum_input_seq])
 
             sample_token_idx = np.argmax(output_tokens[0, :])
             sample_word = self.target_idx2word[sample_token_idx]
-            target_text_len += 1
+            wid_list.append(sample_token_idx)
 
             if sample_word != 'START' and sample_word != 'END':
                 target_text += ' ' + sample_word
 
-            if sample_word == 'END' or target_text_len >= self.max_target_seq_length:
+            if sample_word == 'END' or len(wid_list) >= self.max_target_seq_length:
                 terminated = True
             else:
-                sum_input_seq[0, target_text_len] = sample_token_idx
-        return target_text
+                for j in range(0, len(wid_list)):
+                    k = self.max_target_seq_length - len(wid_list) + j
+                    sum_input_seq[0, k] = wid_list[j]
+        return target_text.strip()
 
 
 class RecursiveRNN2(object):
@@ -427,7 +432,10 @@ class RecursiveRNN2(object):
         outputs = Dense(self.num_target_tokens, activation='softmax')(decoder2)
         # tie it together [article, summary] [word]
         model = Model(inputs=[inputs1, inputs2], outputs=outputs)
-        model.compile(loss='categorical_crossentropy', optimizer='adam')
+        model.compile(loss='categorical_crossentropy', optimizer='adam', metrics=['accuracy'])
+
+        print(model.summary())
+
         self.model = model
 
     def load_weights(self, weight_file_path):
@@ -466,38 +474,40 @@ class RecursiveRNN2(object):
         print(temp.shape)
         return temp
 
-    def generate_batch(self, x_samples, y_samples):
+    def generate_batch(self, x_samples, y_samples, batch_size):
         encoder_input_data_batch = []
         decoder_input_data_batch = []
-        decoder_target_data_batch = np.zeros(
-            shape=(BATCH_SIZE, self.max_target_seq_length, self.num_target_tokens))
+        decoder_target_data_batch = []
         line_idx = 0
         while True:
             for recordIdx in range(0, len(x_samples)):
                 y = y_samples[recordIdx]
                 x = x_samples[recordIdx]
                 for target_words in enumerate(y):
-                    decoder_line = []
+                    decoder_input_line = []
 
                     for idx, w in enumerate(target_words):
                         w2idx = 0  # default [UNK]
                         if w in self.target_word2idx:
                             w2idx = self.target_word2idx[w]
-                        decoder_line.append(w2idx)
+                        decoder_input_line.append(w2idx)
+                        decoder_target_label = np.zeros(self.num_target_tokens)
                         if w2idx != 0:
                             if idx != 0:
-                                decoder_target_data_batch[line_idx, idx-1, w2idx] = 1
-                        decoder_input_data_batch.append(decoder_line)
+                                decoder_target_label[w2idx] = 1
+                        decoder_input_data_batch.append(np.array(decoder_input_line))
                         encoder_input_data_batch.append(x)
-                        line_idx += 1
-                        if line_idx >= BATCH_SIZE:
-                            yield [pad_sequences(encoder_input_data_batch, self.max_input_seq_length),
-                                   pad_sequences(decoder_input_data_batch, self.max_target_seq_length)], decoder_target_data_batch
-                            line_idx = 0
-                            encoder_input_data_batch = []
-                            decoder_input_data_batch = []
-                            decoder_target_data_batch = np.zeros(
-                                shape=(BATCH_SIZE, self.max_target_seq_length, self.num_target_tokens))
+                        decoder_target_data_batch.append(decoder_target_label)
+
+                line_idx += 1
+                if line_idx >= batch_size:
+                    yield [pad_sequences(encoder_input_data_batch, self.max_input_seq_length),
+                           pad_sequences(decoder_input_data_batch,
+                                         self.max_target_seq_length)], np.array(decoder_target_data_batch)
+                    line_idx = 0
+                    encoder_input_data_batch = []
+                    decoder_input_data_batch = []
+                    decoder_target_data_batch = []
 
 
     @staticmethod
@@ -512,11 +522,13 @@ class RecursiveRNN2(object):
     def get_architecture_file_path(model_dir_path):
         return model_dir_path + '/' + RecursiveRNN2.model_name + '-architecture.json'
 
-    def fit(self, Xtrain, Ytrain, Xtest, Ytest, epochs=None, model_dir_path=None):
+    def fit(self, Xtrain, Ytrain, Xtest, Ytest, epochs=None, model_dir_path=None, batch_size=None):
         if epochs is None:
             epochs = EPOCHS
         if model_dir_path is None:
             model_dir_path = './models'
+        if batch_size is None:
+            batch_size = DEFAULT_BATCH_SIZE
 
         self.version += 1
         self.config['version'] = self.version
@@ -534,11 +546,11 @@ class RecursiveRNN2(object):
         Xtrain = self.transform_input_text(Xtrain)
         Xtest = self.transform_input_text(Xtest)
 
-        train_gen = self.generate_batch(Xtrain, Ytrain)
-        test_gen = self.generate_batch(Xtest, Ytest)
+        train_gen = self.generate_batch(Xtrain, Ytrain, batch_size)
+        test_gen = self.generate_batch(Xtest, Ytest, batch_size)
 
-        train_num_batches = len(Xtrain) * self.max_target_seq_length // BATCH_SIZE
-        test_num_batches = len(Xtest) * self.max_target_seq_length // BATCH_SIZE
+        train_num_batches = len(Xtrain) * self.max_target_seq_length // batch_size
+        test_num_batches = len(Xtest) * self.max_target_seq_length // batch_size
 
         history = self.model.fit_generator(generator=train_gen, steps_per_epoch=train_num_batches,
                                            epochs=epochs,
@@ -559,22 +571,26 @@ class RecursiveRNN2(object):
         input_seq = pad_sequences(input_seq, self.max_input_seq_length)
         sum_input_seq = np.zeros(
             shape=(1, self.max_target_seq_length))
-        sum_input_seq[0, 0] = self.target_word2idx['START']
+        start_token = self.target_word2idx['START']
+        sum_input_seq[0, self.max_target_seq_length - 1] = start_token
         terminated = False
-        target_text_len = 0
+
         target_text = ''
+        wid_list = [start_token]
         while not terminated:
             output_tokens = self.model.predict([input_seq, sum_input_seq])
 
             sample_token_idx = np.argmax(output_tokens[0, :])
             sample_word = self.target_idx2word[sample_token_idx]
-            target_text_len += 1
+            wid_list.append(sample_token_idx)
 
             if sample_word != 'START' and sample_word != 'END':
                 target_text += ' ' + sample_word
 
-            if sample_word == 'END' or target_text_len >= self.max_target_seq_length:
+            if sample_word == 'END' or len(wid_list) >= self.max_target_seq_length:
                 terminated = True
             else:
-                sum_input_seq[0, target_text_len] = sample_token_idx
-        return target_text
+                for j in range(0, len(wid_list)):
+                    k = self.max_target_seq_length - len(wid_list) + j
+                    sum_input_seq[0, k] = wid_list[j]
+        return target_text.strip()
