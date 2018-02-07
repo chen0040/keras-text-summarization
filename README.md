@@ -73,9 +73,9 @@ import numpy as np
 LOAD_EXISTING_WEIGHTS = True
 
 np.random.seed(42)
-data_dir_path = './data' demo
-report_dir_path = './reports' demo
-model_dir_path = './models' demo
+data_dir_path = './data'
+report_dir_path = './reports'
+model_dir_path = './models'
 
 print('loading csv file ...')
 df = pd.read_csv(data_dir_path + "/fake_or_real_news.csv")
