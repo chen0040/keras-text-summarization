@@ -253,7 +253,7 @@ class RecursiveRNN1(object):
         print(temp.shape)
         return temp
 
-    def transform_target_encoding(self, texts):
+    def split_target_text(self, texts):
         temp = []
         for line in texts:
             x = []
@@ -333,8 +333,8 @@ class RecursiveRNN1(object):
         architecture_file_path = RecursiveRNN1.get_architecture_file_path(model_dir_path)
         open(architecture_file_path, 'w').write(self.model.to_json())
 
-        Ytrain = self.transform_target_encoding(Ytrain)
-        Ytest = self.transform_target_encoding(Ytest)
+        Ytrain = self.split_target_text(Ytrain)
+        Ytest = self.split_target_text(Ytest)
 
         Xtrain = self.transform_input_text(Xtrain)
         Xtest = self.transform_input_text(Xtest)
@@ -451,7 +451,7 @@ class RecursiveRNN2(object):
         print(temp.shape)
         return temp
 
-    def transform_target_encoding(self, texts):
+    def split_target_text(self, texts):
         temp = []
         for line in texts:
             x = []
@@ -528,8 +528,8 @@ class RecursiveRNN2(object):
         architecture_file_path = RecursiveRNN2.get_architecture_file_path(model_dir_path)
         open(architecture_file_path, 'w').write(self.model.to_json())
 
-        Ytrain = self.transform_target_encoding(Ytrain)
-        Ytest = self.transform_target_encoding(Ytest)
+        Ytrain = self.split_target_text(Ytrain)
+        Ytest = self.split_target_text(Ytest)
 
         Xtrain = self.transform_input_text(Xtrain)
         Xtest = self.transform_input_text(Xtest)

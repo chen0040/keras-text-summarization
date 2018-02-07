@@ -32,7 +32,7 @@ def main():
 
     Xtrain, Xtest, Ytrain, Ytest = train_test_split(X, Y, test_size=0.2, random_state=42)
 
-    print('training size: ', len(Xtrain))
+    print('demo size: ', len(Xtrain))
     print('testing size: ', len(Xtest))
 
     print('start fitting ...')

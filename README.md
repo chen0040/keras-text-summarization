@@ -14,14 +14,14 @@ The implementation can be found in [keras_text_summarization/library/seq2seq.py]
 
 There are three variants of seq2seq model implemented for the text summarization   
 * Seq2SeqSummarizer (one hot encoding)
-    * training: run [keras_text_summarization/training/seq2seq_train.py](keras_text_summarization/training/seq2seq_train.py ) 
-    * prediction: demo code is available in [keras_text_summarization/training/seq2seq_predict.py](keras_text_summarization/training/seq2seq_predict.py) 
+    * training: run [keras_text_summarization/demo/seq2seq_train.py](keras_text_summarization/demo/seq2seq_train.py ) 
+    * prediction: demo code is available in [keras_text_summarization/demo/seq2seq_predict.py](keras_text_summarization/demo/seq2seq_predict.py) 
 * Seq2SeqGloVeSummarizer (GloVe encoding for encoder input)
-    * training: run [keras_text_summarization/training/seq2seq_glove_train.py](keras_text_summarization/training/seq2seq_glove_train.py) 
-    * prediction: demo code is available in [keras_text_summarization/training/seq2seq_glove_predict.py](keras_text_summarization/training/seq2seq_glove_predict.py) 
+    * training: run [keras_text_summarization/demo/seq2seq_glove_train.py](keras_text_summarization/demo/seq2seq_glove_train.py) 
+    * prediction: demo code is available in [keras_text_summarization/demo/seq2seq_glove_predict.py](keras_text_summarization/demo/seq2seq_glove_predict.py) 
 * Seq2SeqGloVeSummarizerV2 (GloVe encoding for both encoder input and decoder input)
-    * training: run [keras_text_summarization/training/seq2seq_glove_v2_train.py](keras_text_summarization/training/seq2seq_glove_v2_train.py)
-    * prediction: demo code is available in [keras_text_summarization/training/seq2seq_glove_v2_predict.py](keras_text_summarization/training/seq2seq_glove_v2_predict.py) 
+    * training: run [keras_text_summarization/demo/seq2seq_glove_v2_train.py](keras_text_summarization/demo/seq2seq_glove_v2_train.py)
+    * prediction: demo code is available in [keras_text_summarization/demo/seq2seq_glove_v2_predict.py](keras_text_summarization/demo/seq2seq_glove_v2_predict.py) 
     
 ### Other RNN models
 
@@ -31,15 +31,15 @@ The implementation can be found in [keras_text_summarization/library/rnn.py](ker
 
 * One-Shot RNN (OneShotRNN in [rnn.py](keras_text_summarization/library/rnn.py)):
 The one-shot RNN is a very simple encoder-decoder recurrent network model which encodes the content of an article and decodes the entire content of the summarized text
-    * training: run [keras_text_summarization/training/one_hot_rnn_train.py](keras_text_summarization/training/one_hot_rnn_train.py)
+    * training: run [keras_text_summarization/demo/one_hot_rnn_train.py](keras_text_summarization/demo/one_hot_rnn_train.py)
 * Recursive RNN 1 (RecursiveRNN1 in [rnn.py](keras_text_summarization/library/rnn.py)):
 The recursive RNN 1 takes the artcile content and the current built-up summarized text to predict the next character of the summarized text.
-    * training: run [keras_text_summarization/training/recursive_rnn_v1.py](keras_text_summarization/training/recursive_rnn_v1.py)
+    * training: run [keras_text_summarization/demo/recursive_rnn_v1.py](keras_text_summarization/demo/recursive_rnn_v1.py)
 * Recursive RNN 2 (RecursiveRNN2 in [rnn.py](keras_text_summarization/library/rnn.py)):
 The recursive RNN 2 takes the artcile content and the current built-up summarized text to predict the next character of the summarized text.
-    * training: run [keras_text_summarization/training/recursive_rnn_v2.py](keras_text_summarization/training/recursive_rnn_v2.py)
+    * training: run [keras_text_summarization/demo/recursive_rnn_v2.py](keras_text_summarization/demo/recursive_rnn_v2.py)
 
-The trained models are available in the keras_text_summarization/training/models folder 
+The trained models are available in the keras_text_summarization/demo/models folder 
 
 # Notes
 
@@ -54,7 +54,7 @@ To train a deep learning model, say Seq2SeqSummarizer, run the following command
 ```bash
 pip install requirements.txt
 
-cd keras_text_summarization/training
+cd keras_text_summarization/demo
 python seq2seq_train.py 
 ```
 
@@ -73,9 +73,9 @@ import numpy as np
 LOAD_EXISTING_WEIGHTS = True
 
 np.random.seed(42)
-data_dir_path = './data' # refers to the keras_text_summarization/training/data folder
-report_dir_path = './reports' # refers to the keras_text_summarization/training/reports folder
-model_dir_path = './models' # refers to the keras_text_summarization/training/models folder
+data_dir_path = './data' demo
+report_dir_path = './reports' demo
+model_dir_path = './models' demo
 
 print('loading csv file ...')
 df = pd.read_csv(data_dir_path + "/fake_or_real_news.csv")
@@ -101,7 +101,7 @@ if LOAD_EXISTING_WEIGHTS:
 plot_and_save_history(history, summarizer.model_name, history_plot_file_path, metrics={'loss', 'acc'})
 ```
 
-After the training is completed, the trained models will be saved as cf-v1-*.* in the video_classifier/training/models.
+After the training is completed, the trained models will be saved as cf-v1-*.* in the video_classifier/demo/models.
 
 ### Summarization
 
@@ -116,8 +116,8 @@ from keras_text_summarization.library.seq2seq import Seq2SeqSummarizer
 import numpy as np
 
 np.random.seed(42)
-data_dir_path = './data' # refers to the keras_text_summarization/training/data folder
-model_dir_path = './models' # refers to the keras_text_summarization/training/models folder
+data_dir_path = './data' # refers to the keras_text_summarization/demo/data folder
+model_dir_path = './models' # refers to the keras_text_summarization/demo/models folder
 
 print('loading csv file ...')
 df = pd.read_csv(data_dir_path + "/fake_or_real_news.csv")
