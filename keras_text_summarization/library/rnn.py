@@ -342,8 +342,10 @@ class RecursiveRNN1(object):
         train_gen = self.generate_batch(Xtrain, Ytrain, batch_size)
         test_gen = self.generate_batch(Xtest, Ytest, batch_size)
 
-        train_num_batches = len(Xtrain) * self.max_target_seq_length // batch_size
-        test_num_batches = len(Xtest) * self.max_target_seq_length // batch_size
+        total_training_samples = sum([len(target_text) for target_text in Ytrain])
+        total_testing_samples = sum([len(target_text) for target_text in Ytest])
+        train_num_batches = total_training_samples // batch_size
+        test_num_batches = total_testing_samples // batch_size
 
         history = self.model.fit_generator(generator=train_gen, steps_per_epoch=train_num_batches,
                                            epochs=epochs,
@@ -544,8 +546,10 @@ class RecursiveRNN2(object):
         train_gen = self.generate_batch(Xtrain, Ytrain, batch_size)
         test_gen = self.generate_batch(Xtest, Ytest, batch_size)
 
-        train_num_batches = len(Xtrain) * self.max_target_seq_length // batch_size
-        test_num_batches = len(Xtest) * self.max_target_seq_length // batch_size
+        total_training_samples = sum([len(target_text) for target_text in Ytrain])
+        total_testing_samples = sum([len(target_text) for target_text in Ytest])
+        train_num_batches = total_training_samples // batch_size
+        test_num_batches = total_testing_samples // batch_size
 
         history = self.model.fit_generator(generator=train_gen, steps_per_epoch=train_num_batches,
                                            epochs=epochs,
