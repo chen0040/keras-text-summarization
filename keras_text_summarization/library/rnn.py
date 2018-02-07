@@ -293,15 +293,15 @@ class RecursiveRNN1(object):
                         encoder_input_data_batch.append(x)
                         decoder_target_data_batch.append(decoder_target_label)
 
-                line_idx += 1
-                if line_idx >= batch_size:
-                    yield [pad_sequences(encoder_input_data_batch, self.max_input_seq_length),
-                           pad_sequences(decoder_input_data_batch,
-                                         self.max_target_seq_length)], np.array(decoder_target_data_batch)
-                    line_idx = 0
-                    encoder_input_data_batch = []
-                    decoder_input_data_batch = []
-                    decoder_target_data_batch = []
+                        line_idx += 1
+                        if line_idx >= batch_size:
+                            yield [pad_sequences(encoder_input_data_batch, self.max_input_seq_length),
+                                   pad_sequences(decoder_input_data_batch,
+                                                 self.max_target_seq_length)], np.array(decoder_target_data_batch)
+                            line_idx = 0
+                            encoder_input_data_batch = []
+                            decoder_input_data_batch = []
+                            decoder_target_data_batch = []
 
     @staticmethod
     def get_weight_file_path(model_dir_path):
@@ -499,15 +499,15 @@ class RecursiveRNN2(object):
                         encoder_input_data_batch.append(x)
                         decoder_target_data_batch.append(decoder_target_label)
 
-                line_idx += 1
-                if line_idx >= batch_size:
-                    yield [pad_sequences(encoder_input_data_batch, self.max_input_seq_length),
-                           pad_sequences(decoder_input_data_batch,
-                                         self.max_target_seq_length)], np.array(decoder_target_data_batch)
-                    line_idx = 0
-                    encoder_input_data_batch = []
-                    decoder_input_data_batch = []
-                    decoder_target_data_batch = []
+                        line_idx += 1
+                        if line_idx >= batch_size:
+                            yield [pad_sequences(encoder_input_data_batch, self.max_input_seq_length),
+                                   pad_sequences(decoder_input_data_batch,
+                                                 self.max_target_seq_length)], np.array(decoder_target_data_batch)
+                            line_idx = 0
+                            encoder_input_data_batch = []
+                            decoder_input_data_batch = []
+                            decoder_target_data_batch = []
 
 
     @staticmethod
