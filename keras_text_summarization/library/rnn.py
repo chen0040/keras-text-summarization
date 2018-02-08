@@ -277,15 +277,18 @@ class RecursiveRNN1(object):
                 x = x_samples[recordIdx]
                 decoder_input_line = []
 
-                for idx, w in enumerate(target_words):
+                for idx in range(0, len(target_words)-1):
                     w2idx = 0  # default [UNK]
+                    w = target_words[idx]
                     if w in self.target_word2idx:
                         w2idx = self.target_word2idx[w]
                     decoder_input_line = decoder_input_line + [w2idx]
                     decoder_target_label = np.zeros(self.num_target_tokens)
-                    if w2idx != 0:
-                        if idx != 0:
-                            decoder_target_label[w2idx] = 1
+                    w2idx_next = 0
+                    if target_words[idx+1] in self.target_word2idx:
+                        w2idx_next = self.target_word2idx[target_words[idx+1]]
+                    if w2idx_next != 0:
+                        decoder_target_label[w2idx_next] = 1
                     decoder_input_data_batch.append(decoder_input_line)
                     encoder_input_data_batch.append(x)
                     decoder_target_data_batch.append(decoder_target_label)
@@ -339,8 +342,8 @@ class RecursiveRNN1(object):
         train_gen = self.generate_batch(Xtrain, Ytrain, batch_size)
         test_gen = self.generate_batch(Xtest, Ytest, batch_size)
 
-        total_training_samples = sum([len(target_text) for target_text in Ytrain])
-        total_testing_samples = sum([len(target_text) for target_text in Ytest])
+        total_training_samples = sum([len(target_text)-1 for target_text in Ytrain])
+        total_testing_samples = sum([len(target_text)-1 for target_text in Ytest])
         train_num_batches = total_training_samples // batch_size
         test_num_batches = total_testing_samples // batch_size
 
@@ -372,7 +375,7 @@ class RecursiveRNN1(object):
             output_tokens = self.model.predict([input_seq, sum_input_seq])
             sample_token_idx = np.argmax(output_tokens[0, :])
             sample_word = self.target_idx2word[sample_token_idx]
-            wid_list.append(sample_token_idx)
+            wid_list = wid_list + [sample_token_idx]
 
             if sample_word != 'START' and sample_word != 'END':
                 target_text += ' ' + sample_word
@@ -477,15 +480,18 @@ class RecursiveRNN2(object):
                 x = x_samples[recordIdx]
                 decoder_input_line = []
 
-                for idx, w in enumerate(target_words):
+                for idx in range(0, len(target_words)-1):
                     w2idx = 0  # default [UNK]
+                    w = target_words[idx]
                     if w in self.target_word2idx:
                         w2idx = self.target_word2idx[w]
                     decoder_input_line = decoder_input_line + [w2idx]
                     decoder_target_label = np.zeros(self.num_target_tokens)
-                    if w2idx != 0:
-                        if idx != 0:
-                            decoder_target_label[w2idx] = 1
+                    w2idx_next = 0
+                    if target_words[idx+1] in self.target_word2idx:
+                        w2idx_next = self.target_word2idx[target_words[idx+1]]
+                    if w2idx_next != 0:
+                        decoder_target_label[w2idx_next] = 1
                     decoder_input_data_batch.append(decoder_input_line)
                     encoder_input_data_batch.append(x)
                     decoder_target_data_batch.append(decoder_target_label)
@@ -540,8 +546,8 @@ class RecursiveRNN2(object):
         train_gen = self.generate_batch(Xtrain, Ytrain, batch_size)
         test_gen = self.generate_batch(Xtest, Ytest, batch_size)
 
-        total_training_samples = sum([len(target_text) for target_text in Ytrain])
-        total_testing_samples = sum([len(target_text) for target_text in Ytest])
+        total_training_samples = sum([len(target_text)-1 for target_text in Ytrain])
+        total_testing_samples = sum([len(target_text)-1 for target_text in Ytest])
         train_num_batches = total_training_samples // batch_size
         test_num_batches = total_testing_samples // batch_size
 

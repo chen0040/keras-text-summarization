@@ -46,6 +46,9 @@ The trained models are available in the keras_text_summarization/demo/models fol
 
 # Usage
 
+The demo below shows how to use seq2seq to do training and prediction, but other models described above also follow
+the same process of training and prediction.
+
 ### Train Deep Learning model
 
 To train a deep learning model, say Seq2SeqSummarizer, run the following commands:
