@@ -260,12 +260,10 @@ class RecursiveRNN1(object):
             line2 = 'START ' + line.lower() + ' END'
             for word in line2.split(' '):
                 x.append(word)
-                if len(x) >= self.max_target_seq_length:
+                if len(x)+1 >= self.max_target_seq_length:
+                    x.append('END')
                     break
             temp.append(x)
-
-        temp = np.array(temp)
-        print(temp.shape)
         return temp
 
     def generate_batch(self, x_samples, y_samples, batch_size):
@@ -275,33 +273,32 @@ class RecursiveRNN1(object):
         line_idx = 0
         while True:
             for recordIdx in range(0, len(x_samples)):
-                y = y_samples[recordIdx]
+                target_words = y_samples[recordIdx]
                 x = x_samples[recordIdx]
-                for target_words in enumerate(y):
-                    decoder_input_line = []
+                decoder_input_line = []
 
-                    for idx, w in enumerate(target_words):
-                        w2idx = 0  # default [UNK]
-                        if w in self.target_word2idx:
-                            w2idx = self.target_word2idx[w]
-                        decoder_input_line.append(w2idx)
-                        decoder_target_label = np.zeros(self.num_target_tokens)
-                        if w2idx != 0:
-                            if idx != 0:
-                                decoder_target_label[w2idx] = 1
-                        decoder_input_data_batch.append(np.array(decoder_input_line))
-                        encoder_input_data_batch.append(x)
-                        decoder_target_data_batch.append(decoder_target_label)
+                for idx, w in enumerate(target_words):
+                    w2idx = 0  # default [UNK]
+                    if w in self.target_word2idx:
+                        w2idx = self.target_word2idx[w]
+                    decoder_input_line = decoder_input_line + [w2idx]
+                    decoder_target_label = np.zeros(self.num_target_tokens)
+                    if w2idx != 0:
+                        if idx != 0:
+                            decoder_target_label[w2idx] = 1
+                    decoder_input_data_batch.append(decoder_input_line)
+                    encoder_input_data_batch.append(x)
+                    decoder_target_data_batch.append(decoder_target_label)
 
-                        line_idx += 1
-                        if line_idx >= batch_size:
-                            yield [pad_sequences(encoder_input_data_batch, self.max_input_seq_length),
-                                   pad_sequences(decoder_input_data_batch,
-                                                 self.max_target_seq_length)], np.array(decoder_target_data_batch)
-                            line_idx = 0
-                            encoder_input_data_batch = []
-                            decoder_input_data_batch = []
-                            decoder_target_data_batch = []
+                    line_idx += 1
+                    if line_idx >= batch_size:
+                        yield [pad_sequences(encoder_input_data_batch, self.max_input_seq_length),
+                               pad_sequences(decoder_input_data_batch,
+                                             self.max_target_seq_length)], np.array(decoder_target_data_batch)
+                        line_idx = 0
+                        encoder_input_data_batch = []
+                        decoder_input_data_batch = []
+                        decoder_target_data_batch = []
 
     @staticmethod
     def get_weight_file_path(model_dir_path):
@@ -463,12 +460,10 @@ class RecursiveRNN2(object):
             line2 = 'START ' + line.lower() + ' END'
             for word in line2.split(' '):
                 x.append(word)
-                if len(x) >= self.max_target_seq_length:
+                if len(x)+1 >= self.max_target_seq_length:
+                    x.append('END')
                     break
             temp.append(x)
-
-        temp = np.array(temp)
-        print(temp.shape)
         return temp
 
     def generate_batch(self, x_samples, y_samples, batch_size):
@@ -478,33 +473,32 @@ class RecursiveRNN2(object):
         line_idx = 0
         while True:
             for recordIdx in range(0, len(x_samples)):
-                y = y_samples[recordIdx]
+                target_words = y_samples[recordIdx]
                 x = x_samples[recordIdx]
-                for target_words in enumerate(y):
-                    decoder_input_line = []
+                decoder_input_line = []
 
-                    for idx, w in enumerate(target_words):
-                        w2idx = 0  # default [UNK]
-                        if w in self.target_word2idx:
-                            w2idx = self.target_word2idx[w]
-                        decoder_input_line.append(w2idx)
-                        decoder_target_label = np.zeros(self.num_target_tokens)
-                        if w2idx != 0:
-                            if idx != 0:
-                                decoder_target_label[w2idx] = 1
-                        decoder_input_data_batch.append(np.array(decoder_input_line))
-                        encoder_input_data_batch.append(x)
-                        decoder_target_data_batch.append(decoder_target_label)
+                for idx, w in enumerate(target_words):
+                    w2idx = 0  # default [UNK]
+                    if w in self.target_word2idx:
+                        w2idx = self.target_word2idx[w]
+                    decoder_input_line = decoder_input_line + [w2idx]
+                    decoder_target_label = np.zeros(self.num_target_tokens)
+                    if w2idx != 0:
+                        if idx != 0:
+                            decoder_target_label[w2idx] = 1
+                    decoder_input_data_batch.append(decoder_input_line)
+                    encoder_input_data_batch.append(x)
+                    decoder_target_data_batch.append(decoder_target_label)
 
-                        line_idx += 1
-                        if line_idx >= batch_size:
-                            yield [pad_sequences(encoder_input_data_batch, self.max_input_seq_length),
-                                   pad_sequences(decoder_input_data_batch,
-                                                 self.max_target_seq_length)], np.array(decoder_target_data_batch)
-                            line_idx = 0
-                            encoder_input_data_batch = []
-                            decoder_input_data_batch = []
-                            decoder_target_data_batch = []
+                    line_idx += 1
+                    if line_idx >= batch_size:
+                        yield [pad_sequences(encoder_input_data_batch, self.max_input_seq_length),
+                               pad_sequences(decoder_input_data_batch,
+                                             self.max_target_seq_length)], np.array(decoder_target_data_batch)
+                        line_idx = 0
+                        encoder_input_data_batch = []
+                        decoder_input_data_batch = []
+                        decoder_target_data_batch = []
 
 
     @staticmethod
