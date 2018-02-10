@@ -437,6 +437,7 @@ class RecursiveRNN2(object):
 
     def load_weights(self, weight_file_path):
         if os.path.exists(weight_file_path):
+            print('loading weights from ', weight_file_path)
             self.model.load_weights(weight_file_path)
 
     def transform_input_text(self, texts):
@@ -492,6 +493,7 @@ class RecursiveRNN2(object):
                         w2idx_next = self.target_word2idx[target_words[idx+1]]
                     if w2idx_next != 0:
                         decoder_target_label[w2idx_next] = 1
+
                     decoder_input_data_batch.append(decoder_input_line)
                     encoder_input_data_batch.append(x)
                     decoder_target_data_batch.append(decoder_target_label)
@@ -505,7 +507,6 @@ class RecursiveRNN2(object):
                         encoder_input_data_batch = []
                         decoder_input_data_batch = []
                         decoder_target_data_batch = []
-
 
     @staticmethod
     def get_weight_file_path(model_dir_path):

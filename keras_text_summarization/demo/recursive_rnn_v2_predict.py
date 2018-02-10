@@ -4,8 +4,12 @@ import pandas as pd
 from keras_text_summarization.library.rnn import RecursiveRNN2
 import numpy as np
 
+from keras_text_summarization.utility.device_utils import init_devices
+
 
 def main():
+    init_devices(device_type='cpu')
+
     np.random.seed(42)
     data_dir_path = './data'
     model_dir_path = './models'

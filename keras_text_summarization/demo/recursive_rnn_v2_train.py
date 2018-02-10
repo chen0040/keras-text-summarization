@@ -5,12 +5,15 @@ from sklearn.model_selection import train_test_split
 from keras_text_summarization.utility.plot_utils import plot_and_save_history
 from keras_text_summarization.library.rnn import RecursiveRNN2
 from keras_text_summarization.utility.fake_news_loader import fit_text
+from keras_text_summarization.utility.device_utils import init_devices
 import numpy as np
 
 LOAD_EXISTING_WEIGHTS = False
 
 
 def main():
+    init_devices(device_type='cpu')
+
     np.random.seed(42)
     data_dir_path = './data'
     report_dir_path = './reports'
@@ -40,7 +43,7 @@ def main():
     print('testing size: ', len(Xtest))
 
     print('start fitting ...')
-    history = summarizer.fit(Xtrain, Ytrain, Xtest, Ytest, epochs=20)
+    history = summarizer.fit(Xtrain, Ytrain, Xtest, Ytest, epochs=20, batch_size=256)
 
     history_plot_file_path = report_dir_path + '/' + RecursiveRNN2.model_name + '-history.png'
     if LOAD_EXISTING_WEIGHTS:
