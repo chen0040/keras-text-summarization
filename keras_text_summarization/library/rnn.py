@@ -579,7 +579,7 @@ class RecursiveRNN2(object):
             output_tokens = self.model.predict([input_seq, sum_input_seq])
             sample_token_idx = np.argmax(output_tokens[0, :])
             sample_word = self.target_idx2word[sample_token_idx]
-            wid_list.append(sample_token_idx)
+            wid_list = wid_list + [sample_token_idx]
 
             if sample_word != 'START' and sample_word != 'END':
                 target_text += ' ' + sample_word
