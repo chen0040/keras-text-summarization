@@ -5,15 +5,12 @@ from sklearn.model_selection import train_test_split
 from keras_text_summarization.utility.plot_utils import plot_and_save_history
 from keras_text_summarization.library.rnn import RecursiveRNN2
 from keras_text_summarization.utility.fake_news_loader import fit_text
-from keras_text_summarization.utility.device_utils import init_devices
 import numpy as np
 
 LOAD_EXISTING_WEIGHTS = False
 
 
 def main():
-    init_devices(device_type='cpu')
-
     np.random.seed(42)
     data_dir_path = './data'
     report_dir_path = './reports'
