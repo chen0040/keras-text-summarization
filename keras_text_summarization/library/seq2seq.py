@@ -5,7 +5,7 @@ from keras.layers import Embedding, Dense, Input
 from keras.layers.recurrent import LSTM
 from keras.preprocessing.sequence import pad_sequences
 from keras.callbacks import ModelCheckpoint
-from keras_text_summarization.utility.glove_loader import load_glove, GLOVE_EMBEDDING_SIZE
+from keras_text_summarization.library.utility.glove_loader import load_glove, GLOVE_EMBEDDING_SIZE
 import numpy as np
 import os
 

@@ -1,6 +1,6 @@
 import pandas as pd
 from sklearn.model_selection import train_test_split
-from keras_text_summarization.utility.fake_news_loader import fit_text
+from keras_text_summarization.library.applications.fake_news_loader import fit_text
 
 
 def main():

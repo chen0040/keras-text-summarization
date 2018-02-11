@@ -67,9 +67,9 @@ from __future__ import print_function
 
 import pandas as pd
 from sklearn.model_selection import train_test_split
-from keras_text_summarization.utility.plot_utils import plot_and_save_history
+from keras_text_summarization.library.utility.plot_utils import plot_and_save_history
 from keras_text_summarization.library.seq2seq import Seq2SeqSummarizer
-from keras_text_summarization.utility.fake_news_loader import fit_text
+from keras_text_summarization.library.applications.fake_news_loader import fit_text
 import numpy as np
 
 LOAD_EXISTING_WEIGHTS = True
