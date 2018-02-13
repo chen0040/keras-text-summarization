@@ -31,7 +31,7 @@ def main():
     summarizer = RecursiveRNN3(config)
 
     if LOAD_EXISTING_WEIGHTS:
-        weight_file_path = RecursiveRNN2.get_weight_file_path(model_dir_path=model_dir_path)
+        weight_file_path = RecursiveRNN3.get_weight_file_path(model_dir_path=model_dir_path)
         summarizer.load_weights(weight_file_path=weight_file_path)
 
     Xtrain, Xtest, Ytrain, Ytest = train_test_split(X, Y, test_size=0.2, random_state=42)
@@ -42,7 +42,7 @@ def main():
     print('start fitting ...')
     history = summarizer.fit(Xtrain, Ytrain, Xtest, Ytest, epochs=20, batch_size=256)
 
-    history_plot_file_path = report_dir_path + '/' + RecursiveRNN2.model_name + '-history.png'
+    history_plot_file_path = report_dir_path + '/' + RecursiveRNN3.model_name + '-history.png'
     if LOAD_EXISTING_WEIGHTS:
         history_plot_file_path = report_dir_path + '/' + RecursiveRNN2.model_name + '-history-v' + str(summarizer.version) + '.png'
     plot_and_save_history(history, summarizer.model_name, history_plot_file_path, metrics={'loss', 'acc'})
