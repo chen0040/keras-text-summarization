@@ -1,6 +1,6 @@
 scikit-learn
 keras
-tensorflow-gpu
+tensorflow
 pandas
 numpy
 scipy

@@ -400,6 +400,8 @@ class RecursiveRNN2(object):
     maximum length or end-of-sequence token is generated.
     """
 
+    MAX_DECODER_SEQ_LENGTH = 4
+
     def __init__(self, config):
         self.num_input_tokens = config['num_input_tokens']
         self.max_input_seq_length = config['max_input_seq_length']
@@ -421,7 +423,7 @@ class RecursiveRNN2(object):
         article2 = Dropout(0.3)(article1)
 
         # summary input model
-        inputs2 = Input(shape=(self.max_target_seq_length,))
+        inputs2 = Input(shape=(min(self.num_target_tokens, RecursiveRNN2.MAX_DECODER_SEQ_LENGTH), ))
         summ1 = Embedding(self.num_target_tokens, 128)(inputs2)
         summ2 = Dropout(0.3)(summ1)
         summ3 = LSTM(128)(summ2)
@@ -506,7 +508,7 @@ class RecursiveRNN2(object):
                     if line_idx >= batch_size:
                         yield [pad_sequences(encoder_input_data_batch, self.max_input_seq_length),
                                pad_sequences(decoder_input_data_batch,
-                                             self.max_target_seq_length)], np.array(decoder_target_data_batch)
+                                             min(self.num_target_tokens, RecursiveRNN2.MAX_DECODER_SEQ_LENGTH))], np.array(decoder_target_data_batch)
                         line_idx = 0
                         encoder_input_data_batch = []
                         decoder_input_data_batch = []
@@ -575,7 +577,7 @@ class RecursiveRNN2(object):
         input_seq = pad_sequences(input_seq, self.max_input_seq_length)
         start_token = self.target_word2idx['START']
         wid_list = [start_token]
-        sum_input_seq = pad_sequences([wid_list], self.max_target_seq_length)
+        sum_input_seq = pad_sequences([wid_list], min(self.num_target_tokens, RecursiveRNN2.MAX_DECODER_SEQ_LENGTH))
         terminated = False
 
         target_text = ''
@@ -592,7 +594,7 @@ class RecursiveRNN2(object):
             if sample_word == 'END' or len(wid_list) >= self.max_target_seq_length:
                 terminated = True
             else:
-                sum_input_seq = pad_sequences([wid_list], self.max_target_seq_length)
+                sum_input_seq = pad_sequences([wid_list], min(self.num_target_tokens, RecursiveRNN2.MAX_DECODER_SEQ_LENGTH))
         return target_text.strip()
 
 
