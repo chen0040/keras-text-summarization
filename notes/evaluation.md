@@ -6,4 +6,4 @@ The training plot below was obtain by running for 100 epochs (note that further 
 increasing the number of epochs as the result has not converged yet)
 
 
-![seq2seq-history](/keras_text_summarization/demo/reports/seq2seq-history.png)
+![seq2seq-history](/demo/reports/seq2seq-history.png)
