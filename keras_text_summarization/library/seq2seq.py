@@ -134,7 +134,7 @@ class Seq2SeqSummarizer(object):
         if epochs is None:
             epochs = DEFAULT_EPOCHS
         if model_dir_path is None:
-            model_dir_path = './models'
+            model_dir_path = './demo/models'
         if batch_size is None:
             batch_size = DEFAULT_BATCH_SIZE
 
