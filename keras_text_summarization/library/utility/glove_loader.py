@@ -1,4 +1,7 @@
-import urllib.request
+try:
+    import urllib.request
+except:
+    import urllib
 import os
 import sys
 import zipfile
@@ -33,8 +36,12 @@ def download_glove(data_dir_path=None):
 
         if not os.path.exists(glove_zip):
             print('glove file does not exist, downloading from internet')
-            urllib.request.urlretrieve(url='http://nlp.stanford.edu/data/glove.6B.zip', filename=glove_zip,
+            if sys.version[0]=="3":
+                urllib.request.urlretrieve(url='http://nlp.stanford.edu/data/glove.6B.zip', filename=glove_zip,
                                        reporthook=reporthook)
+            elif sys.version[0]=="2":
+                urllib.urlretrieve(url='http://nlp.stanford.edu/data/glove.6B.zip', filename="glove_zip", reporthook=reporthook)
+
 
         print('unzipping glove file')
         zip_ref = zipfile.ZipFile(glove_zip, 'r')
