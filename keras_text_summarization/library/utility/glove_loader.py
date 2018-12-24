@@ -42,7 +42,6 @@ def download_glove(data_dir_path=None):
             elif sys.version[0]=="2":
                 urllib.urlretrieve(url='http://nlp.stanford.edu/data/glove.6B.zip', filename="glove_zip", reporthook=reporthook)
 
-
         print('unzipping glove file')
         zip_ref = zipfile.ZipFile(glove_zip, 'r')
         zip_ref.extractall(data_dir_path)
