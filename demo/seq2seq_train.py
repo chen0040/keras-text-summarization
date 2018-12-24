@@ -12,15 +12,15 @@ LOAD_EXISTING_WEIGHTS = False
 
 def main():
     np.random.seed(42)
-    data_dir_path = './data'
-    report_dir_path = './reports'
-    model_dir_path = './models'
+    data_dir_path = './demo/data'
+    report_dir_path = './demo/reports'
+    model_dir_path = './demo/models'
 
     print('loading csv file ...')
-    df = pd.read_csv(data_dir_path + "/fake_or_real_news.csv")
+    df = pd.read_csv(data_dir_path + "/wikihowAll.csv")
 
     print('extract configuration from input texts ...')
-    Y = df.title
+    Y = df['summary']
     X = df['text']
 
     config = fit_text(X, Y)

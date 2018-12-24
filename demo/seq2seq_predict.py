@@ -7,13 +7,13 @@ import numpy as np
 
 def main():
     np.random.seed(42)
-    data_dir_path = './data'
-    model_dir_path = './models'
+    data_dir_path = './demo/data'
+    model_dir_path = './demo/models'
 
     print('loading csv file ...')
-    df = pd.read_csv(data_dir_path + "/fake_or_real_news.csv")
+    df = pd.read_csv(data_dir_path + "/wiki_v_small.csv")  # "/fake_or_real_news.csv")
     X = df['text']
-    Y = df.title
+    Y = df['summary']
 
     config = np.load(Seq2SeqSummarizer.get_config_file_path(model_dir_path=model_dir_path)).item()
 
