@@ -56,8 +56,7 @@ To train a deep learning model, say Seq2SeqSummarizer, run the following command
 ```bash
 pip install requirements.txt
 
-cd demo
-python seq2seq_train.py 
+python demo/seq2seq_train.py 
 ```
 
 The training code in seq2seq_train.py is quite straightforward and illustrated below:
